@@ -248,68 +248,75 @@ async function handleLogin(request, env) {
     }
 }
 
-// Main worker entry point
-export default {
-    async fetch(request, env, ctx) {
-        // Handle CORS preflight requests
-        if (request.method === 'OPTIONS') {
-            return new Response(null, {
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                },
-            });
+
+/**
+ * onRequest is the magic function that handles all incoming requests
+ * to this Pages Function.
+ * @param {EventContext<Env, Params, Data>} context - The context object.
+ */
+export async function onRequest(context) {
+  const { request, env } = context;
+  const url = new URL(request.url);
+
+  // Handle CORS preflight requests
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      headers: {
+        'Access-Control-Allow-Origin': '*', // Adjust for production
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
+  }
+
+  let responseData;
+  let status = 200;
+
+  try {
+    // The path is now relative to `/api/`
+    const apiPath = url.pathname.replace('/api/', '/');
+    switch (apiPath) {
+      case '/content':
+        if (request.method === 'GET') {
+          responseData = await handleGetContent(env);
+        } else if (request.method === 'POST') {
+          responseData = await handleUpdateContent(request, env);
         }
-
-        const url = new URL(request.url);
-        let responseData;
-        let status = 200;
-
-        try {
-            switch (url.pathname) {
-                case '/api/content':
-                    if (request.method === 'GET') {
-                        responseData = await handleGetContent(env);
-                    } else if (request.method === 'POST') {
-                        responseData = await handleUpdateContent(request, env);
-                    }
-                    break;
-                case '/api/content/reset':
-                    if (request.method === 'POST') {
-                        responseData = await handleResetContent(env);
-                    }
-                    break;
-                case '/api/admin/login':
-                    if (request.method === 'POST') {
-                        const loginResult = await handleLogin(request, env);
-                        responseData = loginResult;
-                        if (!loginResult.success) {
-                             status = loginResult.message === 'Server configuration error.' ? 500 : 401;
-                        }
-                    }
-                    break;
-                default:
-                    responseData = { error: 'Not Found' };
-                    status = 404;
-            }
-        } catch (error) {
-            console.error('Worker error:', error);
-            responseData = { error: 'Internal Server Error', details: error.message };
-            status = 500;
+        break;
+      case '/content/reset':
+        if (request.method === 'POST') {
+          responseData = await handleResetContent(env);
         }
-
-        if (!responseData) {
-            responseData = { error: 'Method Not Allowed' };
-            status = 405;
+        break;
+      case '/admin/login':
+        if (request.method === 'POST') {
+          const loginResult = await handleLogin(request, env);
+          responseData = loginResult;
+          if (!loginResult.success) {
+            status = loginResult.message === 'Server configuration error.' ? 500 : 401;
+          }
         }
+        break;
+      default:
+        responseData = { error: 'Not Found' };
+        status = 404;
+    }
+  } catch (error) {
+    console.error('Worker error:', error);
+    responseData = { error: 'Internal Server Error', details: error.message };
+    status = 500;
+  }
 
-        return new Response(JSON.stringify(responseData), {
-            status: status,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*', // Allow all origins. For production, restrict to your frontend's domain.
-            },
-        });
+  if (!responseData) {
+    responseData = { error: 'Method Not Allowed' };
+    status = 405;
+  }
+
+  return new Response(JSON.stringify(responseData), {
+    status: status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*', // Adjust for production
     },
-};
+  });
+}
