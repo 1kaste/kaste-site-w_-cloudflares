@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kaste Brands & Designs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          screens: {
+            'sm': '640px',
+            'md': '960px',
+            'lg': '1024px',
+            'xl': '1280px',
+            '2xl': '1536px',
+          },
+          extend: {
+            colors: {
+              'brand-primary': 'var(--color-brand-primary)',
+              'brand-secondary': 'var(--color-brand-secondary)',
+              'brand-bg': 'var(--color-brand-bg)',
+              'brand-surface': 'var(--color-brand-surface)',
+              'brand-light': 'var(--color-brand-light)',
+              'brand-gray': 'var(--color-brand-gray)',
+              'brand-dark-text': 'var(--color-brand-dark-text)',
+            },
+            fontFamily: {
+                sans: ['Lato', 'sans-serif'],
+                heading: ['Josefin Sans', 'sans-serif'],
+            },
+            backgroundImage: {
+              'wipe-gradient': 'linear-gradient(to right, var(--color-brand-secondary) 50%, var(--color-brand-primary) 50%)',
+            },
+            animation: {
+              'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+              'colorful-glow': 'colorful-glow 16s ease-in-out infinite',
+              'fade-in': 'fadeIn 0.5s ease-in-out forwards',
+              'fadeOut': 'fadeOut 0.5s ease-in-out forwards',
+              'loading-bar': 'loadingBar 4.0s ease-out forwards',
+              'marquee': 'marquee 40s linear infinite',
+              'marquee-reverse': 'marquee-reverse 40s linear infinite',
+              'background-pan': 'background-pan 6s ease-in-out infinite',
+              'wipe-effect': 'wipe-effect 8s ease-in-out infinite',
+              'background-scroll': 'background-scroll 40s ease-in-out infinite',
+              'scroll-indicator-bounce': 'scroll-indicator-bounce 2.5s ease-in-out infinite',
+              'shrink-width': 'shrink-width 30s linear forwards',
+              'fly-to-nav': 'flyToNav 0.6s ease-in forwards',
+            },
+            keyframes: {
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              'fade-in': {
+                'from': { opacity: '0' },
+                'to': { opacity: '1' },
+              },
+              'fadeOut': {
+                'from': { opacity: '1' },
+                'to': { opacity: '0', visibility: 'hidden' },
+              },
+              loadingBar: {
+                '0%': { width: '0%' },
+                '100%': { width: '100%' },
+              },
+              'colorful-glow': {
+                '0%, 100%': {
+                  boxShadow: '0 0 25px 5px var(--color-brand-primary-glow)',
+                },
+                '14%': {
+                  boxShadow: '0 0 30px 7px var(--color-brand-secondary-glow)',
+                },
+                '28%': {
+                  boxShadow: '0 0 25px 5px rgba(236, 72, 153, 0.7)', // Pink
+                },
+                '42%': {
+                  boxShadow: '0 0 30px 7px rgba(139, 92, 246, 0.7)', // Purple
+                },
+                '57%': {
+                  boxShadow: '0 0 25px 5px rgba(16, 185, 129, 0.7)', // Green
+                },
+                '71%': {
+                  boxShadow: '0 0 30px 7px rgba(239, 68, 68, 0.7)', // Red
+                },
+                '85%': {
+                  boxShadow: '0 0 25px 5px rgba(249, 115, 22, 0.7)', // Orange
+                },
+              },
+              marquee: {
+                '0%': { transform: 'translateX(0%)' },
+                '100%': { transform: 'translateX(-100%)' },
+              },
+              'marquee-reverse': {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(0%)' },
+              },
+              'background-pan': {
+                '0%': { backgroundPosition: '0% center' },
+                '100%': { backgroundPosition: '100% center' },
+              },
+              'wipe-effect': {
+                '0%, 100%': { backgroundPosition: '0% center' },
+                '50%': { backgroundPosition: '100% center' },
+              },
+              'background-scroll': {
+                '0%': { transform: 'scale(1.15) translateX(0) translateY(0)' },
+                '50%': { transform: 'scale(1.15) translateX(-20px) translateY(10px)' },
+                '100%': { transform: 'scale(1.15) translateX(0) translateY(0)' },
+              },
+              'scroll-indicator-bounce': {
+                '0%, 100%': {
+                  transform: 'translateY(0)',
+                  opacity: '0.6',
+                },
+                '50%': {
+                  transform: 'translateY(10px)',
+                  opacity: '1',
+                }
+              },
+              flash: {
+                'from': { 
+                  backgroundColor: 'rgba(var(--color-brand-secondary-rgb), 0.25)',
+                  outline: '1px solid rgba(var(--color-brand-secondary-rgb), 0.5)',
+                },
+                'to': { 
+                  backgroundColor: 'transparent',
+                  outline: '1px solid transparent',
+                },
+              },
+              'shrink-width': {
+                'from': { width: '100%' },
+                'to': { width: '0%' }
+              },
+              'fly-to-nav': {
+                'to': { 
+                  transform: 'translate(var(--fly-to-x, 0), var(--fly-to-y, 0)) scale(0)', 
+                  opacity: '0' 
+                }
+              },
+            },
+          }
+        }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <style id="branding-styles"></style>
+    <style>
+      /* Default brand colors for splash screen and initial load */
+      :root {
+        --color-brand-primary: #0A777B;
+        --color-brand-secondary: #F5B841;
+      }
+
+      /* Prevents white flash before React loads by setting the default background color on the root element */
+      html {
+        background-color: #1A1A1A; /* Matches the default --color-brand-bg */
+      }
+      .flash-highlight {
+        animation: flash 1.5s ease-out;
+        --color-brand-secondary-rgb: 245, 184, 65; /* Fallback */
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^6.25.1",
+    "lucide-react": "https://esm.sh/lucide-react@^0.525.0",
+    "@google/genai": "https://esm.sh/@google/genai",
+    "socket.io-client": "https://esm.sh/socket.io-client@^4.7.5"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-brand-bg text-brand-light font-sans">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
