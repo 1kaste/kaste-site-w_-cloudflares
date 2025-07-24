@@ -1,4 +1,3 @@
-
 import { SiteContent, Service, Project } from '../types';
 
 /**
@@ -21,9 +20,6 @@ const getApiUrl = (): string => {
 };
 
 export const API_URL = getApiUrl();
-
-// In-memory cache for the site content
-let siteContentCache: SiteContent | null = null;
 
 const defaultServices: Service[] = [
   {
@@ -181,12 +177,21 @@ export const defaultSiteContent: SiteContent = {
       tabs: [
         { id: 'ai', label: 'AI Tools', icon: 'BrainCircuit', items: [
             { id: 'tab_ai_gemini', icon: { type: 'custom', value: 'GeminiIcon'}, title: 'Gemini & GPT Models', description: 'For advanced text generation, summarization, and analysis.' },
+            { id: 'tab_ai_tf', icon: { type: 'custom', value: 'TensorFlowIcon'}, title: 'TensorFlow & PyTorch', description: 'For custom model development, training, and fine-tuning complex neural networks.' },
+            { id: 'tab_ai_langchain', icon: { type: 'custom', value: 'LangChainIcon'}, title: 'LangChain', description: 'For building complex, data-aware applications powered by large language models.' },
+            { id: 'tab_ai_cloud', icon: { type: 'lucide', value: 'CloudCog'}, title: 'Cloud AI Platforms', description: 'Leveraging Google Cloud AI and AWS SageMaker for scalable, enterprise-grade ML solutions.' },
         ]},
         { id: 'stack', label: 'Our Stack', icon: 'Code', items: [
-            { id: 'tab_stack_react', icon: { type: 'custom', value: 'ReactIcon'}, title: 'React & Next.js', description: 'For building scalable and performant web applications.' },
+            { id: 'tab_stack_react', icon: { type: 'custom', value: 'ReactIcon'}, title: 'React & Next.js', description: 'For building scalable and performant server-rendered web applications.' },
+            { id: 'tab_stack_ts', icon: { type: 'custom', value: 'TypeScriptIcon'}, title: 'TypeScript', description: 'Ensuring robust, type-safe code that scales for large projects.' },
+            { id: 'tab_stack_tailwind', icon: { type: 'custom', value: 'TailwindIcon'}, title: 'Tailwind CSS', description: 'For rapid, utility-first UI development and consistent design systems.' },
+            { id: 'tab_stack_node', icon: { type: 'custom', value: 'NodeJSIcon'}, title: 'Node.js & Python', description: 'Utilizing powerful and flexible backends for diverse application needs.' },
+            { id: 'tab_stack_db', icon: { type: 'custom', value: 'PostgreSQLIcon'}, title: 'PostgreSQL & MongoDB', description: 'For reliable, scalable, and versatile data storage solutions, both SQL and NoSQL.' },
         ]},
         { id: 'projects', label: 'In The Works', icon: 'Loader', items: [
-            { id: 'tab_proj_content', icon: { type: 'lucide', value: 'Lightbulb' }, title: 'AI-Powered Content Platform', description: 'Developing a SaaS for automated content creation and optimization.', iconClassName: "text-yellow-400"},
+            { id: 'tab_proj_content', icon: { type: 'lucide', value: 'Newspaper' }, title: 'AI-Powered Content Platform', description: 'Developing a SaaS for automated content creation and SEO optimization.', iconClassName: "text-yellow-400"},
+            { id: 'tab_proj_brand', icon: { type: 'lucide', value: 'Palette' }, title: 'Dynamic Brand Identity Generator', description: 'An internal tool for rapid prototyping and visualization of brand styles.', iconClassName: "text-purple-400" },
+            { id: 'tab_proj_analytics', icon: { type: 'lucide', value: 'BarChart3' }, title: 'Real-time Analytics Dashboard', description: 'A client-facing dashboard to track project metrics, engagement, and ROI.', iconClassName: "text-blue-400" },
         ]},
       ],
     },
@@ -195,6 +200,9 @@ export const defaultSiteContent: SiteContent = {
         subtitle: 'Our track record, by the numbers.',
         items: [
             { id: 'stat_projects', icon: 'Briefcase', value: '75+', label: 'Projects Delivered' },
+            { id: 'stat_satisfaction', icon: 'Smile', value: '98%', label: 'Client Satisfaction' },
+            { id: 'stat_efficiency', icon: 'TrendingUp', value: '30%+', label: 'Average Efficiency Gain' },
+            { id: 'stat_experience', icon: 'Users', value: '10+', label: 'Years of Combined Experience' }
         ]
     }
   },
@@ -216,7 +224,9 @@ export const defaultSiteContent: SiteContent = {
           title: "Our Guiding Principles",
           subtitle: "This is the ethos that drives our work and our relationships.",
           items: [
-              { id: 'principle_partner', icon: 'HeartHandshake', title: 'Radical Partnership', text: 'No black boxes. No jargon. We operate as a true extension of your team.'},
+              { id: 'principle_partner', icon: 'HeartHandshake', title: 'Radical Partnership', text: 'No black boxes. No jargon. We operate as a true extension of your team, fostering transparent collaboration.'},
+              { id: 'principle_quality', icon: 'Award', title: 'Uncompromising Quality', text: 'Good enough is never good enough. We pursue excellence in every detail, from pixel-perfect design to flawless code.'},
+              { id: 'principle_innovation', icon: 'Lightbulb', title: 'Driven by Innovation', text: 'We are relentlessly curious, constantly exploring new technologies and creative approaches to solve problems in smarter ways.'},
           ]
       },
       cta: {
@@ -250,23 +260,23 @@ export const defaultSiteContent: SiteContent = {
   projects: defaultProjects,
 };
 
-// This function is called on app start and on websocket update
-export const fetchAndCacheSiteContent = async (): Promise<SiteContent> => {
+/**
+ * Fetches the latest site content from the API.
+ * This function does not cache content; caching is handled by the React context.
+ * @returns {Promise<SiteContent>} The fetched site content.
+ */
+export const fetchSiteContent = async (): Promise<SiteContent> => {
   try {
     const response = await fetch(`${API_URL}/api/content`, { cache: 'no-store' });
     if (!response.ok) {
         throw new Error(`Failed to fetch content: ${response.statusText}`);
     }
     const content: SiteContent = await response.json();
-    siteContentCache = content;
     return content;
   } catch (e) {
-    console.error("Error fetching site content from API, using fallback.", e);
-    // As a fallback, use the hardcoded default content
-    if (!siteContentCache) {
-      siteContentCache = JSON.parse(JSON.stringify(defaultSiteContent));
-    }
-    return siteContentCache!;
+    console.error("Error fetching site content from API, falling back to default.", e);
+    // As a fallback, return a deep copy of the default content.
+    return JSON.parse(JSON.stringify(defaultSiteContent));
   }
 };
 
@@ -283,8 +293,6 @@ export const saveSiteContent = async (content: SiteContent): Promise<void> => {
     if (!response.ok) {
         throw new Error(`Failed to save content: ${response.statusText}`);
     }
-    // Update cache after successful save
-    siteContentCache = content;
   } catch (e) {
     console.error("Error saving site content to API", e);
     throw e; // re-throw to be handled by the caller
@@ -300,47 +308,8 @@ export const resetSiteContent = async (): Promise<void> => {
     if (!response.ok) {
         throw new Error(`Failed to reset content: ${response.statusText}`);
     }
-    // Fetch the new (reset) content to update the cache
-    await fetchAndCacheSiteContent();
   } catch (e) {
     console.error("Error resetting site content via API", e);
     throw e;
   }
 };
-
-// This is the primary method components will use to get content.
-// It's synchronous and relies on the cache being populated by `fetchAndCacheSiteContent`.
-export const getSiteContent = (): SiteContent => {
-  if (!siteContentCache) {
-    console.warn("getSiteContent called before cache was initialized. Returning default content.");
-    // Return a deep copy of the default content as a temporary fallback.
-    return JSON.parse(JSON.stringify(defaultSiteContent));
-  }
-  return siteContentCache;
-};
-
-// This function is for internal use by the app to get the raw cached content
-// or null if not yet loaded.
-export const getCachedSiteContent = (): SiteContent | null => {
-    return siteContentCache;
-}
-
-
-// --- Convenience helpers ---
-export const getServices = (): Service[] => {
-  return getSiteContent().services;
-};
-
-export const getServiceById = (id: string): Service | undefined => {
-  const content = getSiteContent();
-  return content.services.find(service => service.id === id);
-};
-
-export const getProjects = (): Project[] => {
-    return getSiteContent().projects;
-};
-
-export const getProjectsByServiceId = (serviceId: string): Project[] => {
-    const content = getSiteContent();
-    return content.projects.filter(p => p.serviceId === serviceId);
-}

@@ -1,6 +1,5 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from 'react';
-import { fetchAndCacheSiteContent, defaultSiteContent } from '../services/siteContent';
+import { fetchSiteContent, defaultSiteContent } from '../services/siteContent';
 import type { SiteContent } from '../types';
 
 // Context Definition
@@ -21,7 +20,7 @@ export const SiteContentProvider: React.FC<{ children: ReactNode }> = ({ childre
     // No need to set loading true on every refresh, only initial.
     // This provides a smoother experience in the admin panel.
     try {
-      const freshContent = await fetchAndCacheSiteContent();
+      const freshContent = await fetchSiteContent();
       setContent(freshContent);
     } catch (err) {
       console.error("Failed to refresh site content:", err);

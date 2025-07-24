@@ -82,12 +82,21 @@ const defaultSiteContent = {
       tabs: [
         { id: 'ai', label: 'AI Tools', icon: 'BrainCircuit', items: [
             { id: 'tab_ai_gemini', icon: { type: 'custom', value: 'GeminiIcon'}, title: 'Gemini & GPT Models', description: 'For advanced text generation, summarization, and analysis.' },
+            { id: 'tab_ai_tf', icon: { type: 'custom', value: 'TensorFlowIcon'}, title: 'TensorFlow & PyTorch', description: 'For custom model development, training, and fine-tuning complex neural networks.' },
+            { id: 'tab_ai_langchain', icon: { type: 'custom', value: 'LangChainIcon'}, title: 'LangChain', description: 'For building complex, data-aware applications powered by large language models.' },
+            { id: 'tab_ai_cloud', icon: { type: 'lucide', value: 'CloudCog'}, title: 'Cloud AI Platforms', description: 'Leveraging Google Cloud AI and AWS SageMaker for scalable, enterprise-grade ML solutions.' },
         ]},
         { id: 'stack', label: 'Our Stack', icon: 'Code', items: [
-            { id: 'tab_stack_react', icon: { type: 'custom', value: 'ReactIcon'}, title: 'React & Next.js', description: 'For building scalable and performant web applications.' },
+            { id: 'tab_stack_react', icon: { type: 'custom', value: 'ReactIcon'}, title: 'React & Next.js', description: 'For building scalable and performant server-rendered web applications.' },
+            { id: 'tab_stack_ts', icon: { type: 'custom', value: 'TypeScriptIcon'}, title: 'TypeScript', description: 'Ensuring robust, type-safe code that scales for large projects.' },
+            { id: 'tab_stack_tailwind', icon: { type: 'custom', value: 'TailwindIcon'}, title: 'Tailwind CSS', description: 'For rapid, utility-first UI development and consistent design systems.' },
+            { id: 'tab_stack_node', icon: { type: 'custom', value: 'NodeJSIcon'}, title: 'Node.js & Python', description: 'Utilizing powerful and flexible backends for diverse application needs.' },
+            { id: 'tab_stack_db', icon: { type: 'custom', value: 'PostgreSQLIcon'}, title: 'PostgreSQL & MongoDB', description: 'For reliable, scalable, and versatile data storage solutions, both SQL and NoSQL.' },
         ]},
         { id: 'projects', label: 'In The Works', icon: 'Loader', items: [
-            { id: 'tab_proj_content', icon: { type: 'lucide', value: 'Lightbulb' }, title: 'AI-Powered Content Platform', description: 'Developing a SaaS for automated content creation and optimization.', iconClassName: "text-yellow-400"},
+            { id: 'tab_proj_content', icon: { type: 'lucide', value: 'Newspaper' }, title: 'AI-Powered Content Platform', description: 'Developing a SaaS for automated content creation and SEO optimization.', iconClassName: "text-yellow-400"},
+            { id: 'tab_proj_brand', icon: { type: 'lucide', value: 'Palette' }, title: 'Dynamic Brand Identity Generator', description: 'An internal tool for rapid prototyping and visualization of brand styles.', iconClassName: "text-purple-400" },
+            { id: 'tab_proj_analytics', icon: { type: 'lucide', value: 'BarChart3' }, title: 'Real-time Analytics Dashboard', description: 'A client-facing dashboard to track project metrics, engagement, and ROI.', iconClassName: "text-blue-400" },
         ]},
       ],
     },
@@ -96,6 +105,9 @@ const defaultSiteContent = {
         subtitle: 'Our track record, by the numbers.',
         items: [
             { id: 'stat_projects', icon: 'Briefcase', value: '75+', label: 'Projects Delivered' },
+            { id: 'stat_satisfaction', icon: 'Smile', value: '98%', label: 'Client Satisfaction' },
+            { id: 'stat_efficiency', icon: 'TrendingUp', value: '30%+', label: 'Average Efficiency Gain' },
+            { id: 'stat_experience', icon: 'Users', value: '10+', label: 'Years of Combined Experience' }
         ]
     }
   },
@@ -117,7 +129,9 @@ const defaultSiteContent = {
           title: "Our Guiding Principles",
           subtitle: "This is the ethos that drives our work and our relationships.",
           items: [
-              { id: 'principle_partner', icon: 'HeartHandshake', title: 'Radical Partnership', text: 'No black boxes. No jargon. We operate as a true extension of your team.'},
+              { id: 'principle_partner', icon: 'HeartHandshake', title: 'Radical Partnership', text: 'No black boxes. No jargon. We operate as a true extension of your team, fostering transparent collaboration.'},
+              { id: 'principle_quality', icon: 'Award', title: 'Uncompromising Quality', text: 'Good enough is never good enough. We pursue excellence in every detail, from pixel-perfect design to flawless code.'},
+              { id: 'principle_innovation', icon: 'Lightbulb', title: 'Driven by Innovation', text: 'We are relentlessly curious, constantly exploring new technologies and creative approaches to solve problems in smarter ways.'},
           ]
       },
       cta: {
