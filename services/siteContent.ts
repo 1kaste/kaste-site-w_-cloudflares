@@ -253,7 +253,7 @@ const defaultSiteContent: SiteContent = {
 // This function is called on app start and on websocket update
 export const fetchAndCacheSiteContent = async (): Promise<SiteContent> => {
   try {
-    const response = await fetch(`${API_URL}/api/content`);
+    const response = await fetch(`${API_URL}/api/content`, { cache: 'no-store' });
     if (!response.ok) {
         throw new Error(`Failed to fetch content: ${response.statusText}`);
     }
@@ -278,6 +278,7 @@ export const saveSiteContent = async (content: SiteContent): Promise<void> => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(content),
+        cache: 'no-store',
     });
     if (!response.ok) {
         throw new Error(`Failed to save content: ${response.statusText}`);
@@ -294,6 +295,7 @@ export const resetSiteContent = async (): Promise<void> => {
   try {
     const response = await fetch(`${API_URL}/api/content/reset`, {
         method: 'POST',
+        cache: 'no-store',
     });
     if (!response.ok) {
         throw new Error(`Failed to reset content: ${response.statusText}`);
