@@ -1,6 +1,7 @@
+
 import React from 'react';
 import AnimateOnScroll from './AnimateOnScroll';
-import { getSiteContent } from '../services/siteContent';
+import { useSiteContent } from '../contexts/SiteContentContext';
 
 interface Client {
   id: string;
@@ -21,7 +22,11 @@ const ClientLogo: React.FC<{ client: Client; uniqueId: string }> = ({ client, un
 );
 
 const ClientMarquee: React.FC = () => {
-  const { homepage } = getSiteContent();
+  const { content } = useSiteContent();
+
+  if (!content) return null;
+
+  const { homepage } = content;
   const { clientMarquee } = homepage;
   const clients_row1 = clientMarquee.clients[0] || [];
   const clients_row2 = clientMarquee.clients[1] || [];

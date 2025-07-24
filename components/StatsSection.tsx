@@ -1,10 +1,14 @@
+
 import React from 'react';
 import { icons, HelpCircle } from 'lucide-react';
 import AnimateOnScroll from './AnimateOnScroll';
-import { getSiteContent } from '../services/siteContent';
+import { useSiteContent } from '../contexts/SiteContentContext';
 
 const StatsSection: React.FC = () => {
-  const { homepage } = getSiteContent();
+  const { content } = useSiteContent();
+  
+  if (!content) return null;
+  const { homepage } = content;
   const { stats } = homepage;
 
   return (

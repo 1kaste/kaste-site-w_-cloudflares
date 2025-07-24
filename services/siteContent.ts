@@ -99,7 +99,7 @@ const defaultServices: Service[] = [
 ];
 const defaultProjects: Project[] = [];
 
-const defaultSiteContent: SiteContent = {
+export const defaultSiteContent: SiteContent = {
   branding: {
     logoUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1751848854/Brands_Designs_1_yismag.svg",
     splashScreen: {
@@ -332,7 +332,8 @@ export const getServices = (): Service[] => {
 };
 
 export const getServiceById = (id: string): Service | undefined => {
-  return getServices().find(service => service.id === id);
+  const content = getSiteContent();
+  return content.services.find(service => service.id === id);
 };
 
 export const getProjects = (): Project[] => {
@@ -340,5 +341,6 @@ export const getProjects = (): Project[] => {
 };
 
 export const getProjectsByServiceId = (serviceId: string): Project[] => {
-    return getProjects().filter(p => p.serviceId === serviceId);
+    const content = getSiteContent();
+    return content.projects.filter(p => p.serviceId === serviceId);
 }

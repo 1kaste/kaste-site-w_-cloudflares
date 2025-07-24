@@ -1,15 +1,12 @@
 
-
-
-
 import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { useAdminPanel } from '../contexts/AdminPanelContext';
-import { getSiteContent, saveSiteContent, resetSiteContent } from '../services/siteContent';
+import { saveSiteContent, resetSiteContent } from '../services/siteContent';
 import type { SiteContent, Service, Project, SocialLink, CyclingContent, IconSource, FooterContent, HomepageContent, AboutPageContent } from '../types';
 import * as LucideIcons from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
-import { useAppContext } from '../contexts/AppContext';
 import { useNotification } from '../contexts/NotificationContext';
+import { useSiteContent } from '../contexts/SiteContentContext';
 
 const { X, Save, RefreshCw, Trash2, Plus, ChevronDown, ChevronUp, Palette, Home, LayoutTemplate, MessageSquare, Info, Phone, Settings, Briefcase, LogIn, LogOut, Wand2, Loader2 } = LucideIcons;
 
@@ -153,7 +150,7 @@ const generateId = () => `id_${Date.now()}_${Math.random().toString(36).substr(2
 
 const AdminPanel: React.FC = () => {
     const { isOpen, closePanel, isAuthenticated, login, logout } = useAdminPanel();
-    const { refreshApp } = useAppContext();
+    const { content: globalContent, refreshContent } = useSiteContent();
     const { addNotification } = useNotification();
     const [content, setContent] = useState<SiteContent | null>(null);
     const [activeSection, setActiveSection] = useState<AdminSection>('branding');
@@ -197,38 +194,12 @@ const AdminPanel: React.FC = () => {
     }, [content?.projects]);
     
     useEffect(() => {
-        if (isOpen && isAuthenticated) {
-            const loadedContent = getSiteContent();
-            // Ensure splashScreen data exists for backward compatibility with old localStorage data
-            if (!loadedContent.branding.splashScreen) {
-                loadedContent.branding.splashScreen = {
-                    brandName: "Kaste Brands & Designs",
-                    description: "Building Bold Brands & Smart Solutions",
-                };
-            }
-            if (!loadedContent.popup) { // Ensure popup data exists
-                loadedContent.popup = {
-                    enabled: false,
-                    type: 'announcement',
-                    icon: 'Megaphone',
-                    title: 'New Announcement!',
-                    message: 'Check out our latest news or special offers.',
-                    ctaText: 'Learn More',
-                    ctaLink: '/about',
-                    imageUrl: ''
-                };
-            }
-             if (!('type' in loadedContent.popup)) {
-                (loadedContent.popup as any).type = 'announcement';
-            }
-            if (!('imageUrl' in loadedContent.popup)) {
-              loadedContent.popup.imageUrl = '';
-            }
-            setContent(loadedContent);
+        if (isOpen && isAuthenticated && globalContent) {
+            setContent(JSON.parse(JSON.stringify(globalContent)));
         } else {
             setContent(null);
         }
-    }, [isOpen, isAuthenticated]);
+    }, [isOpen, isAuthenticated, globalContent]);
 
     const updateProjectUiState = (projectId, updates) => {
         setProjectUiState(prev => ({
@@ -316,8 +287,7 @@ const AdminPanel: React.FC = () => {
             setIsSaving(true);
             try {
                 await saveSiteContent(content);
-                await refreshApp();
-                setContent(getSiteContent());
+                await refreshContent();
                 addNotification('Content saved and is now live!', 'success');
             } catch (error) {
                 console.error("Failed to save content:", error);
@@ -452,7 +422,7 @@ const AdminPanel: React.FC = () => {
         );
     }
 
-    if (!content) return <div id="admin-panel-loading" className="fixed inset-0 z-[100] flex items-center justify-center bg-brand-bg/90 backdrop-blur-sm">Loading...</div>;
+    if (!content) return <div id="admin-panel-loading" className="fixed inset-0 z-[100] flex items-center justify-center bg-brand-bg/90 backdrop-blur-sm">Loading Content Editor...</div>;
 
     const renderSection = () => {
         switch(activeSection) {

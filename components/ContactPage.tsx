@@ -1,14 +1,13 @@
 
-
 import React, { useState, FormEvent, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { getServices, getSiteContent } from '../services/siteContent';
 import AnimateOnScroll from './AnimateOnScroll';
 import { Loader2, Send, ChevronDown, Mail, Phone, MapPin } from 'lucide-react';
+import { useSiteContent } from '../contexts/SiteContentContext';
+import type { Service } from '../types';
 
 const ContactPage: React.FC = () => {
-  const allServices = getServices();
-  const { contact, footer } = getSiteContent();
+  const { content } = useSiteContent();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -23,6 +22,11 @@ const ContactPage: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+  
+  if (!content) return null;
+  
+  const allServices: Service[] = content.services;
+  const { contact, footer } = content;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

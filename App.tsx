@@ -1,8 +1,5 @@
 
-
-
-
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -19,87 +16,36 @@ import FloatingContact from './components/FloatingContact';
 import ContactPage from './components/ContactPage';
 import { AdminPanelProvider } from './contexts/AdminPanelContext';
 import AdminPanel from './components/AdminPanel';
-import { fetchAndCacheSiteContent, getCachedSiteContent } from './services/siteContent';
 import SplashScreen from './components/SplashScreen';
 import AnnouncementPopup from './components/AnnouncementPopup';
 import { AnnouncementProvider } from './contexts/AnnouncementContext';
-import { AppContextProvider } from './contexts/AppContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { SiteContentProvider, useSiteContent } from './contexts/SiteContentContext';
 
-const hexToRgb = (hex: string): string => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-    : '0, 0, 0';
-};
+// This component contains the logic to show either the splash screen or the main app.
+const AppBody: React.FC = () => {
+    const { content, isLoading } = useSiteContent();
+    const [isSplashAnimationComplete, setSplashAnimationComplete] = useState(false);
 
-const applyBrandingStyles = () => {
-    const content = getCachedSiteContent();
-    if (!content) return;
+    // Show splash screen if we are fetching data from the server OR if the splash animation isn't done yet.
+    if (isLoading || !isSplashAnimationComplete) {
+        return <SplashScreen onFinished={() => setSplashAnimationComplete(true)} />;
+    }
     
-    const branding = content.branding;
-    const styleElement = document.getElementById('branding-styles');
-    if (styleElement && branding) {
-      const primaryRgb = hexToRgb(branding.colors.primary);
-      const secondaryRgb = hexToRgb(branding.colors.secondary);
-      
-      styleElement.innerHTML = `
-        :root {
-          --color-brand-primary: ${branding.colors.primary};
-          --color-brand-secondary: ${branding.colors.secondary};
-          --color-brand-bg: ${branding.colors.background};
-          --color-brand-surface: ${branding.colors.surface};
-          --color-brand-light: ${branding.colors.lightText};
-          --color-brand-gray: ${branding.colors.grayText};
-          --color-brand-dark-text: ${branding.colors.darkText};
-          --color-brand-primary-glow: rgba(${primaryRgb}, 0.7);
-          --color-brand-secondary-glow: rgba(${secondaryRgb}, 0.7);
-          --color-brand-secondary-rgb: ${secondaryRgb};
-        }
-      `;
+    // This is a safeguard. With the new context, content should not be null after loading.
+    if (!content) {
+        return <div className="bg-brand-bg text-brand-light text-center p-8">Fatal Error: Content could not be loaded. Please refresh the page.</div>;
     }
-}
 
-const App: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [contentVersion, setContentVersion] = useState(0);
-
-  const refreshApp = useCallback(async () => {
-    try {
-      await fetchAndCacheSiteContent();
-      applyBrandingStyles();
-      setContentVersion(v => v + 1); // Force re-render with fetched content
-    } catch (err) {
-      console.error("Failed to refresh site content:", err);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Fetch initial content on first load.
-    fetchAndCacheSiteContent().then(() => {
-        applyBrandingStyles();
-        setContentVersion(v => v + 1);
-    }).catch(err => {
-        console.error("Failed to load initial site content:", err);
-        // Use fallback styles if fetch fails
-        applyBrandingStyles();
-        setContentVersion(v => v + 1);
-    });
-  }, []);
-
-  if (isLoading) {
-    return <SplashScreen onFinished={() => setIsLoading(false)} />;
-  }
-
-  return (
-    <AppContextProvider value={{ refreshApp }}>
+    // Now render the full app
+    return (
       <AdminPanelProvider>
         <ContactModalProvider>
           <SearchModalProvider>
             <AnnouncementProvider>
               <NotificationProvider>
                 <HashRouter>
-                  <div id="app-wrapper" className="flex flex-col min-h-screen animate-fade-in bg-brand-bg" key={contentVersion}>
+                  <div id="app-wrapper" className="flex flex-col min-h-screen animate-fade-in bg-brand-bg">
                     <Header />
                     <FloatingIcons />
                     <div id="floating-contact-container" className="hidden lg:block">
@@ -126,7 +72,16 @@ const App: React.FC = () => {
           </SearchModalProvider>
         </ContactModalProvider>
       </AdminPanelProvider>
-    </AppContextProvider>
+    );
+};
+
+
+// The main App component just sets up the top-level provider.
+const App: React.FC = () => {
+  return (
+    <SiteContentProvider>
+        <AppBody />
+    </SiteContentProvider>
   );
 };
 

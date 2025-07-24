@@ -1,10 +1,9 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
-import { getSiteContent } from '../services/siteContent';
 import { icons, X, HelpCircle, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAnnouncement } from '../contexts/AnnouncementContext';
+import { useSiteContent } from '../contexts/SiteContentContext';
 
 const CtaButton = ({ popup, onAfterClick }) => {
     if (!popup.ctaText || !popup.ctaLink) return null;
@@ -35,10 +34,13 @@ const CtaButton = ({ popup, onAfterClick }) => {
 };
 
 const AnnouncementPopup: React.FC = () => {
-    const { popup } = getSiteContent();
+    const { content } = useSiteContent();
     const { isPopupVisible, showPopup, dismissPopup, popupHasBeenSeen } = useAnnouncement();
     const [isClosing, setIsClosing] = useState(false);
     const popupRef = useRef<HTMLDivElement>(null);
+
+    if (!content) return null;
+    const { popup } = content;
 
     const handleClose = () => {
         if (!popupRef.current) return;
