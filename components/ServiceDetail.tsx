@@ -1,11 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { getServiceById, getProjectsByServiceId } from '../services/siteContent';
 import type { Service, Project } from '../types';
 import { ArrowLeft, ExternalLink, Presentation, Mail, Rocket } from 'lucide-react';
 import { useContactModal } from '../contexts/ContactModalContext';
 import PresentationModal from './PresentationModal';
-import { useSiteContent } from '../contexts/SiteContentContext';
 
 const comingSoonServiceIds = ['mobile-apps', 'software-development'];
 
@@ -15,19 +15,18 @@ const ServiceDetail: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const { openModal } = useContactModal();
   const [presentationModalProject, setPresentationModalProject] = useState<Project | null>(null);
-  const { content } = useSiteContent();
 
   useEffect(() => {
-    if (id && content) {
-      const foundService = content.services.find(s => s.id === id) || null;
-      setService(foundService);
+    if (id) {
+      const foundService = getServiceById(id);
+      setService(foundService || null);
       if (foundService) {
-        const serviceProjects = content.projects.filter(p => p.serviceId === id && p.status === 'live');
+        const serviceProjects = getProjectsByServiceId(id).filter(p => p.status === 'live');
         setProjects(serviceProjects);
       }
     }
     window.scrollTo(0, 0);
-  }, [id, content]);
+  }, [id]);
 
   const renderContent = () => {
     if (!service) {

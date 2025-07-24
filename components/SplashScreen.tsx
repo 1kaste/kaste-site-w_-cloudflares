@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useSiteContent } from '../contexts/SiteContentContext';
+import { getSiteContent } from '../services/siteContent';
 
 interface SplashScreenProps {
   onFinished: () => void;
@@ -9,13 +9,7 @@ interface SplashScreenProps {
 const SplashScreen: React.FC<SplashScreenProps> = ({ onFinished }) => {
   const [unmounting, setUnmounting] = useState(false);
   const [percentage, setPercentage] = useState(0);
-  const { content } = useSiteContent();
-  
-  // The splash screen needs to render something even if content is not fully loaded.
-  // The context provides a default state, so content should always be available.
-  if (!content) return null;
-
-  const { branding } = content;
+  const { branding } = getSiteContent();
   const { splashScreen, logoUrl } = branding;
 
   useEffect(() => {

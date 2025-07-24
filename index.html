@@ -46,8 +46,6 @@
               'scroll-indicator-bounce': 'scroll-indicator-bounce 2.5s ease-in-out infinite',
               'shrink-width': 'shrink-width 30s linear forwards',
               'fly-to-nav': 'flyToNav 0.6s ease-in forwards',
-              'toast-in-right': 'toast-in-right 0.5s ease-out forwards',
-              'toast-out-right': 'toast-out-right 0.5s ease-in forwards',
             },
             keyframes: {
               fadeInUp: {
@@ -140,14 +138,6 @@
                   opacity: '0' 
                 }
               },
-              'toast-in-right': {
-                'from': { transform: 'translateX(100%)', opacity: '0' },
-                'to': { transform: 'translateX(0)', opacity: '1' },
-              },
-              'toast-out-right': {
-                'from': { transform: 'translateX(0)', opacity: '1' },
-                'to': { transform: 'translateX(100%)', opacity: '0' },
-              },
             },
           }
         }
@@ -182,8 +172,7 @@
     "react-router-dom": "https://esm.sh/react-router-dom@^6.25.1",
     "lucide-react": "https://esm.sh/lucide-react@^0.525.0",
     "@google/genai": "https://esm.sh/@google/genai",
-    "vite": "https://esm.sh/vite@^7.0.5",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^4.7.0"
+    "itty-router": "https://esm.sh/itty-router@^5.0.18"
   }
 }
 </script>

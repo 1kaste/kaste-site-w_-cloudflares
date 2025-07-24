@@ -1,11 +1,12 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { icons, Search, X, ChevronDown, Sparkles } from 'lucide-react';
 import { useSearchModal } from '../contexts/SearchModalContext';
 import { useAdminPanel } from '../contexts/AdminPanelContext';
+import { getSiteContent } from '../services/siteContent';
 import { useAnnouncement } from '../contexts/AnnouncementContext';
-import { useSiteContent } from '../contexts/SiteContentContext';
 
 const NavLink = ({ to, children, onClick, isButton = false, variant = 'pill' }: { to: string, children: React.ReactNode, onClick?: () => void, isButton?: boolean, variant?: 'pill' | 'list' }) => {
     const pillBaseClasses = "px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300";
@@ -41,11 +42,9 @@ const Header: React.FC = () => {
   const { openModal: openSearchModal } = useSearchModal();
   const { openPanel: openAdminPanel } = useAdminPanel();
   const { showPopup } = useAnnouncement();
-  const { content } = useSiteContent();
 
-  if (!content) return null;
-
-  const { branding, header, popup } = content;
+  const siteContent = getSiteContent();
+  const { branding, header, popup } = siteContent;
   const { cyclingContent } = header;
 
   const phoneNumber = header.contact.phone;

@@ -1,15 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { useSiteContent } from '../contexts/SiteContentContext';
+import { getSiteContent } from '../services/siteContent';
 
 const HeroSection: React.FC = () => {
-  const { content } = useSiteContent();
+  const { homepage } = getSiteContent();
+  const { hero } = homepage;
   const [offsetY, setOffsetY] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  
-  if (!content) return null;
-  const { homepage } = content;
-  const { hero } = homepage;
 
   const handleScroll = () => {
     setOffsetY(window.pageYOffset);

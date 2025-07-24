@@ -1,28 +1,23 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { getServices, getSiteContent } from '../services/siteContent';
 import type { Service } from '../types';
 import ServiceCard from './ServiceCard';
 import AnimateOnScroll from './AnimateOnScroll';
-import { useSiteContent } from '../contexts/SiteContentContext';
 
 const FeaturedServices: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
-  const { content } = useSiteContent();
-  
-  if (!content) return null;
-  const { homepage } = content;
+  const { homepage } = getSiteContent();
   const { featuredServices } = homepage;
 
   useEffect(() => {
-    if (content) {
-      const allServices = content.services;
-      const featured = allServices.filter(s => featuredServices.serviceIds.includes(s.id));
-      // Ensure the order is correct
-      const sortedFeatured = featuredServices.serviceIds.map(id => featured.find(s => s.id === id)).filter(Boolean) as Service[];
-      setServices(sortedFeatured);
-    }
-  }, [content, featuredServices.serviceIds]);
+    const allServices = getServices();
+    const featured = allServices.filter(s => featuredServices.serviceIds.includes(s.id));
+    // Ensure the order is correct
+    const sortedFeatured = featuredServices.serviceIds.map(id => featured.find(s => s.id === id)).filter(Boolean) as Service[];
+    setServices(sortedFeatured);
+  }, [featuredServices.serviceIds]);
 
   return (
     <AnimateOnScroll as="section" id="services" delay={200}>

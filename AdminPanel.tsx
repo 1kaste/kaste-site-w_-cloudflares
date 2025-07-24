@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { useAdminPanel } from '../contexts/AdminPanelContext';
 import { getSiteContent, saveSiteContent, resetSiteContent } from '../services/siteContent';
@@ -310,28 +308,26 @@ const AdminPanel: React.FC = () => {
             setIsSaving(true);
             try {
                 await saveSiteContent(content);
-                alert('Content saved successfully! The changes are now live.');
-                closePanel();
+                alert('Content saved successfully! The site will now reload to apply changes.');
+                window.location.reload();
             } catch (error) {
                 console.error("Failed to save content:", error);
                 alert('Error: Could not save content. Please check the console and try again.');
-            } finally {
                 setIsSaving(false);
             }
         }
     };
     
     const handleReset = async () => {
-        if (window.confirm('Are you sure you want to reset all content to default? This will immediately publish the default content.')) {
+        if (window.confirm('Are you sure you want to reset all content to default? This will immediately publish the default content and reload the page.')) {
             setIsSaving(true);
             try {
                 await resetSiteContent();
-                alert('Content has been reset to default and is now live.');
-                closePanel();
+                alert('Content has been reset to default. The site will now reload.');
+                window.location.reload();
             } catch (error) {
                 console.error("Failed to reset content:", error);
                 alert('Error: Could not reset content. Please check the console and try again.');
-            } finally {
                 setIsSaving(false);
             }
         }
@@ -1059,7 +1055,7 @@ const AdminPanel: React.FC = () => {
                     </nav>
                     <div id="admin-panel-sidebar-footer" className="p-4 border-t border-brand-primary/10 flex items-center justify-between">
                          <div id="admin-panel-sidebar-footer-actions" className="flex items-center gap-2">
-                            <button onClick={handleReset} className="flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-lg text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors">
+                            <button onClick={handleReset} disabled={isSaving} className="flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-lg text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 <RefreshCw size={16} /> Reset
                             </button>
                              <button onClick={logout} className="flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-lg text-brand-gray bg-white/5 hover:bg-white/10 transition-colors">

@@ -1,15 +1,15 @@
-
 import React, { useState, useEffect, FormEvent } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useContactModal } from '../contexts/ContactModalContext';
+import { getServices, getSiteContent } from '../services/siteContent';
 import type { Service } from '../types';
 import { X, Loader2, Send, ChevronDown } from 'lucide-react';
-import { useSiteContent } from '../contexts/SiteContentContext';
 
 const ContactModal: React.FC = () => {
   const { isOpen, closeModal, options } = useContactModal();
-  const { content } = useSiteContent();
-  
+  const allServices = getServices();
+  const { footer } = getSiteContent();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -36,12 +36,9 @@ const ContactModal: React.FC = () => {
     }
   }, [isOpen, options.serviceId]);
 
-  if (!isOpen || !content) {
+  if (!isOpen) {
     return null;
   }
-
-  const allServices: Service[] = content.services;
-  const { footer } = content;
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

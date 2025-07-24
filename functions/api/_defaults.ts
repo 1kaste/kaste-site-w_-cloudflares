@@ -1,9 +1,80 @@
+import type { SiteContent, Service, Project } from '../../types';
 
-const mongoose = require('mongoose');
+const defaultServices: Service[] = [
+  {
+    id: 'web-designs',
+    title: 'Web Designs',
+    description: 'We build bold, responsive websites that captivate users and drive business growth with style.',
+    longDescription: "Your website is your digital storefront. We don't just build pages; we architect experiences. Our team combines bold, modern aesthetics with clean, intuitive UX to create websites that are not only visually stunning but also fast, responsive, and conversion-optimized. From corporate hubs to intricate e-commerce platforms, we deliver digital excellence that makes a statement.",
+    imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753214408/website_peview_yamyba.png',
+  },
+  {
+    id: 'brand-identity',
+    title: 'Brand Identity',
+    description: 'Forge a memorable brand identity that tells your story and connects with your audience.',
+    longDescription: "A powerful brand is more than a logo—it's a feeling. We dive deep to define your brand's core essence, then build a complete visual identity system: logo, color palette, typography, and voice. Our goal is to craft a cohesive, compelling narrative that ensures you stand out and resonate deeply with your target market.",
+    imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753214408/brand_identity_preview_image_bbjy8c.png',
+  },
+  {
+    id: 'ai-systems',
+    title: 'AI Systems',
+    description: 'Develop intelligent AI systems to automate workflows, uncover insights, and innovate faster.',
+    longDescription: "Unlock the future with Artificial Intelligence. We specialize in custom AI systems, from machine learning models to NLP and computer vision. Our solutions are engineered to boost efficiency, deliver predictive insights, and create new, game-changing opportunities for your business. It's not just automation; it's intelligent evolution.",
+    imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753214409/Ai_systems_preview_vuryne.png',
+  },
+  {
+    id: 'ai-solutions',
+    title: 'AI Solutions',
+    description: 'Integrate bespoke AI solutions to conquer complex challenges and future-proof your operations.',
+    longDescription: "We deliver tailored AI solutions that solve real-world business problems. From AI-powered chatbots that elevate customer service to sophisticated recommendation engines that drive sales, we provide end-to-end implementation. We turn complex data into a competitive advantage, delivering measurable value and a clear path forward.",
+    imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224233/ai_solutions_xp0bsr.png',
+  },
+  {
+    id: 'graphics',
+    title: 'Graphics',
+    description: 'Create stunning, high-impact graphics that stop the scroll and demand attention.',
+    longDescription: "In a visual world, great design is non-negotiable. Our graphics team produces compelling visuals for every platform—from scroll-stopping social media assets and ad creatives to sharp infographics and polished presentation decks. We make sure your message is not just seen, but felt.",
+    imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224232/graphics_gpylst.png',
+  },
+  {
+    id: 'branding',
+    title: 'Branding',
+    description: 'Deploy full-funnel branding strategies that define your position and build a loyal following.',
+    longDescription: "We build brands with intention. Our strategic process involves deep market research, competitive analysis, and crafting a unique brand voice and messaging framework. We ensure every customer touchpoint is a consistent, powerful, and memorable experience that builds not just awareness, but loyalty.",
+    imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224232/branding_section_zzir42.png',
+  },
+  {
+    id: 'digital-marketing',
+    title: 'Digital Marketing',
+    description: 'Execute data-driven marketing campaigns that scale your reach and maximize conversions.',
+    longDescription: "We connect you with your audience through smart, data-first digital marketing. Our holistic strategies cover SEO, SEM, content marketing, and social media management, all relentlessly optimized for performance. We turn clicks into customers and data into dominance, ensuring sustainable growth and maximum ROI.",
+    imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224231/Digital_Marketing_oqamvh.png',
+  },
+  {
+    id: 'software-development',
+    title: 'Software Development',
+    description: 'Engineer scalable, high-performance custom software solutions that power your business forward.',
+    longDescription: "We are architects of digital innovation. Using agile methodologies, our team develops secure, scalable, and robust custom software. Whether you need an enterprise-grade application, a powerful CRM, or a groundbreaking SaaS product, we deliver solutions that streamline operations and create a definitive competitive edge.",
+    imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224232/software_dev_dnerje.png',
+  },
+  {
+    id: 'mobile-apps',
+    title: 'Mobile Apps',
+    description: 'Build elegant, high-performance native and cross-platform mobile apps for iOS & Android.',
+    longDescription: "Put your brand in your customers' hands. We manage the entire mobile app lifecycle—from strategy and UI/UX design to native/cross-platform development, testing, and App Store deployment. We create seamless, powerful, and intuitive mobile experiences that drive engagement and loyalty.",
+    imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224231/mobile_apps_l6ovlk.png',
+  },
+  {
+    id: 'all-digital-solutions',
+    title: 'All Digital Solutions',
+    description: 'Your strategic partner for integrated digital services, designed to build, elevate, and scale your brand.',
+    longDescription: "Kaste Brands & Designs is your one-stop partner for total digital transformation. We offer an integrated suite of services, combining bold creative, cutting-edge technology, and strategic marketing. From forging your brand identity to launching complex software and dominating your market, we have the vision and expertise to accelerate your success.",
+    imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224231/all_digital_solutions_vccfeg.png',
+  }
+];
+const defaultProjects: Project[] = [];
 
-// This default structure is used by Mongoose if no data is provided on creation.
-// It ensures that the database document always has the correct shape.
-const defaultSiteContent = {
+export const defaultSiteContent: SiteContent = {
   branding: {
     logoUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1751848854/Brands_Designs_1_yismag.svg",
     splashScreen: {
@@ -150,39 +221,6 @@ const defaultSiteContent = {
     ctaLink: '/about',
     imageUrl: '',
   },
-  services: [
-    {
-        id: 'web-designs',
-        title: 'Web Designs',
-        description: 'We build bold, responsive websites that captivate users and drive business growth with style.',
-        longDescription: "Your website is your digital storefront. We don't just build pages; we architect experiences.",
-        imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753214408/website_peview_yamyba.png',
-    }
-  ],
-  projects: [
-    {
-        id: 'proj_ecommerce_vortex',
-        serviceId: 'web-designs',
-        status: 'live',
-        title: 'E-commerce Platform "Vortex"',
-        description: 'A scalable and responsive e-commerce site with a custom CMS and payment gateway integration.',
-        imageUrl: 'https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=800&auto=format&fit=crop',
-        demoLink: '#/demo/vortex-web',
-    }
-  ],
+  services: defaultServices,
+  projects: defaultProjects,
 };
-
-
-const SiteContentSchema = new mongoose.Schema({
-    content: {
-        type: mongoose.Schema.Types.Mixed,
-        default: defaultSiteContent
-    }
-}, {
-    // Add timestamps to track when the content was last updated.
-    timestamps: true,
-    // Minimize 'false' saves empty objects, which we don't want.
-    minimize: false
-});
-
-module.exports = mongoose.model('SiteContent', SiteContentSchema);

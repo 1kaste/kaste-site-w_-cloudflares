@@ -1,15 +1,12 @@
 
 import React from 'react';
+import { getServices } from '../services/siteContent';
 import ServiceCard from './ServiceCard';
 import AnimateOnScroll from './AnimateOnScroll';
 import type { Service } from '../types';
-import { useSiteContent } from '../contexts/SiteContentContext';
 
 const ServicesPage: React.FC = () => {
-  const { content } = useSiteContent();
-
-  if (!content) return null;
-  const services: Service[] = content.services;
+  const services: Service[] = getServices();
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-8 sm:pb-12">

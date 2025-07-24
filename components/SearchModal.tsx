@@ -1,9 +1,10 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchModal } from '../contexts/SearchModalContext';
+import { getSiteContent } from '../services/siteContent';
 import { X, Search, ArrowRight, BookUser, Layers, Mail, Phone, ExternalLink, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useSiteContent } from '../contexts/SiteContentContext';
 
 interface SearchResult {
   type: 'service' | 'page' | 'project' | 'contact';
@@ -25,12 +26,13 @@ const pages = [
 const SearchModal: React.FC = () => {
   const { isOpen, closeModal } = useSearchModal();
   const [query, setQuery] = useState('');
-  const { content } = useSiteContent();
+  
+  const siteContent = useMemo(() => getSiteContent(), [isOpen]);
 
   const searchIndex = useMemo<SearchResult[]>(() => {
-    if (!isOpen || !content) return []; // Don't build index if not open or no content
+    if (!isOpen) return []; // Don't build index if not open
 
-    const { contact, footer, services, projects } = content;
+    const { contact, footer, services, projects } = siteContent;
     const servicesMap = new Map(services.map(s => [s.id, s.title]));
 
     const contactAndSocials = [
@@ -82,7 +84,7 @@ const SearchModal: React.FC = () => {
     }));
 
     return [...pageResults, ...serviceResults, ...projectResults, ...contactResults];
-  }, [isOpen, content]);
+  }, [isOpen, siteContent]);
 
   const filteredResults = useMemo(() => {
     if (query.trim().length < 2) {
