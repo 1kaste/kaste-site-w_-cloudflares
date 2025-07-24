@@ -222,6 +222,23 @@ const defaultSiteContent = {
   projects: [],
 };
 
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+const responseHeaders = {
+    ...corsHeaders,
+    'Content-Type': 'application/json',
+    // Instruct browsers and intermediate caches (like Cloudflare) not to cache the API response.
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'Surrogate-Control': 'no-store',
+};
+
+
 // --- Cloudflare KV Handlers ---
 // These functions interact with a Cloudflare KV namespace.
 // Make sure you have a KV namespace created in your Cloudflare account and
@@ -292,13 +309,7 @@ export default {
     async fetch(request, env, ctx) {
         // Handle CORS preflight requests
         if (request.method === 'OPTIONS') {
-            return new Response(null, {
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                },
-            });
+            return new Response(null, { headers: corsHeaders });
         }
 
         const url = new URL(request.url);
@@ -345,10 +356,7 @@ export default {
 
         return new Response(JSON.stringify(responseData), {
             status: status,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*', // Allow all origins. For production, restrict to your frontend's domain.
-            },
+            headers: responseHeaders,
         });
     },
 };
