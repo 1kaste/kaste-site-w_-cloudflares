@@ -46,6 +46,8 @@
               'scroll-indicator-bounce': 'scroll-indicator-bounce 2.5s ease-in-out infinite',
               'shrink-width': 'shrink-width 30s linear forwards',
               'fly-to-nav': 'flyToNav 0.6s ease-in forwards',
+              'toast-in-right': 'toast-in-right 0.5s ease-out forwards',
+              'toast-out-right': 'toast-out-right 0.5s ease-in forwards',
             },
             keyframes: {
               fadeInUp: {
@@ -138,6 +140,14 @@
                   opacity: '0' 
                 }
               },
+              'toast-in-right': {
+                'from': { transform: 'translateX(100%)', opacity: '0' },
+                'to': { transform: 'translateX(0)', opacity: '1' },
+              },
+              'toast-out-right': {
+                'from': { transform: 'translateX(0)', opacity: '1' },
+                'to': { transform: 'translateX(100%)', opacity: '0' },
+              },
             },
           }
         }
@@ -177,10 +187,8 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-brand-bg text-brand-light font-sans">
     <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
+  </body>
 </html>

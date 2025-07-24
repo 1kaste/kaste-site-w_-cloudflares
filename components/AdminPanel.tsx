@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { useAdminPanel } from '../contexts/AdminPanelContext';
 import { getSiteContent, saveSiteContent, resetSiteContent } from '../services/siteContent';
@@ -8,6 +9,7 @@ import type { SiteContent, Service, Project, SocialLink, CyclingContent, IconSou
 import * as LucideIcons from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { useAppContext } from '../contexts/AppContext';
+import { useNotification } from '../contexts/NotificationContext';
 
 const { X, Save, RefreshCw, Trash2, Plus, ChevronDown, ChevronUp, Palette, Home, LayoutTemplate, MessageSquare, Info, Phone, Settings, Briefcase, LogIn, LogOut, Wand2, Loader2 } = LucideIcons;
 
@@ -152,6 +154,7 @@ const generateId = () => `id_${Date.now()}_${Math.random().toString(36).substr(2
 const AdminPanel: React.FC = () => {
     const { isOpen, closePanel, isAuthenticated, login, logout } = useAdminPanel();
     const { refreshApp } = useAppContext();
+    const { addNotification } = useNotification();
     const [content, setContent] = useState<SiteContent | null>(null);
     const [activeSection, setActiveSection] = useState<AdminSection>('branding');
     const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
@@ -313,11 +316,12 @@ const AdminPanel: React.FC = () => {
             setIsSaving(true);
             try {
                 await saveSiteContent(content);
-                await refreshApp(); // Re-fetches content and triggers re-render in App.tsx
-                alert('Content saved and is now live!');
+                await refreshApp();
+                setContent(getSiteContent());
+                addNotification('Content saved and is now live!', 'success');
             } catch (error) {
                 console.error("Failed to save content:", error);
-                alert('Error: Could not save content. Please check the console and try again.');
+                addNotification('Error: Could not save content. Check console.', 'error');
             } finally {
                 setIsSaving(false);
             }
@@ -329,11 +333,13 @@ const AdminPanel: React.FC = () => {
             setIsSaving(true);
             try {
                 await resetSiteContent();
-                alert('Content has been reset to default. The page will now reload.');
-                window.location.reload();
+                addNotification('Content has been reset. The page will now reload.', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
             } catch (error) {
                 console.error("Failed to reset content:", error);
-                alert('Error: Could not reset content. Please check the console and try again.');
+                addNotification('Error: Could not reset content. Check console.', 'error');
                 setIsSaving(false);
             }
         }

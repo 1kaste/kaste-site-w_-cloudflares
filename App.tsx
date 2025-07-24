@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
@@ -23,6 +24,7 @@ import SplashScreen from './components/SplashScreen';
 import AnnouncementPopup from './components/AnnouncementPopup';
 import { AnnouncementProvider } from './contexts/AnnouncementContext';
 import { AppContextProvider } from './contexts/AppContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 const hexToRgb = (hex: string): string => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -95,29 +97,31 @@ const App: React.FC = () => {
         <ContactModalProvider>
           <SearchModalProvider>
             <AnnouncementProvider>
-              <HashRouter>
-                <div id="app-wrapper" className="flex flex-col min-h-screen animate-fade-in bg-brand-bg" key={contentVersion}>
-                  <Header />
-                  <FloatingIcons />
-                  <div id="floating-contact-container" className="hidden lg:block">
-                    <FloatingContact />
+              <NotificationProvider>
+                <HashRouter>
+                  <div id="app-wrapper" className="flex flex-col min-h-screen animate-fade-in bg-brand-bg" key={contentVersion}>
+                    <Header />
+                    <FloatingIcons />
+                    <div id="floating-contact-container" className="hidden lg:block">
+                      <FloatingContact />
+                    </div>
+                    <main id="main-content-container" className="flex-grow relative">
+                      <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/about" element={<AboutPage />} />
+                        <Route path="/services" element={<ServicesPage />} />
+                        <Route path="/service/:id" element={<ServiceDetail />} />
+                        <Route path="/contact" element={<ContactPage />} />
+                      </Routes>
+                    </main>
+                    <Footer />
                   </div>
-                  <main id="main-content-container" className="flex-grow relative">
-                    <Routes>
-                      <Route path="/" element={<HomePage />} />
-                      <Route path="/about" element={<AboutPage />} />
-                      <Route path="/services" element={<ServicesPage />} />
-                      <Route path="/service/:id" element={<ServiceDetail />} />
-                      <Route path="/contact" element={<ContactPage />} />
-                    </Routes>
-                  </main>
-                  <Footer />
-                </div>
-                <ContactModal />
-                <SearchModal />
-                <AdminPanel />
-                <AnnouncementPopup />
-              </HashRouter>
+                  <ContactModal />
+                  <SearchModal />
+                  <AdminPanel />
+                  <AnnouncementPopup />
+                </HashRouter>
+              </NotificationProvider>
             </AnnouncementProvider>
           </SearchModalProvider>
         </ContactModalProvider>
