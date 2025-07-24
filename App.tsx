@@ -21,13 +21,14 @@ import AnnouncementPopup from './components/AnnouncementPopup';
 import { AnnouncementProvider } from './contexts/AnnouncementContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { SiteContentProvider, useSiteContent } from './contexts/SiteContentContext';
+import BrandingStyles from './components/BrandingStyles';
 
 // This component contains the logic to show either the splash screen or the main app.
 const AppBody: React.FC = () => {
     const { content, isLoading } = useSiteContent();
     const [isSplashAnimationComplete, setSplashAnimationComplete] = useState(false);
 
-    // Show splash screen if we are fetching data from the server OR if the splash animation isn't done yet.
+    // Show splash screen if we are loading for the first time OR if the splash animation isn't done yet.
     if (isLoading || !isSplashAnimationComplete) {
         return <SplashScreen onFinished={() => setSplashAnimationComplete(true)} />;
     }
@@ -45,6 +46,7 @@ const AppBody: React.FC = () => {
             <AnnouncementProvider>
               <NotificationProvider>
                 <HashRouter>
+                  <BrandingStyles />
                   <div id="app-wrapper" className="flex flex-col min-h-screen animate-fade-in bg-brand-bg">
                     <Header />
                     <FloatingIcons />

@@ -3,41 +3,6 @@ import React, { createContext, useState, useContext, ReactNode, useEffect, useCa
 import { fetchAndCacheSiteContent, defaultSiteContent } from '../services/siteContent';
 import type { SiteContent } from '../types';
 
-// Helper functions that were in App.tsx
-const hexToRgb = (hex: string): string => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-    : '0, 0, 0';
-};
-
-const applyBrandingStyles = (content: SiteContent | null) => {
-    if (!content) return;
-    
-    const branding = content.branding;
-    const styleElement = document.getElementById('branding-styles');
-    if (styleElement && branding) {
-      const primaryRgb = hexToRgb(branding.colors.primary);
-      const secondaryRgb = hexToRgb(branding.colors.secondary);
-      
-      styleElement.innerHTML = `
-        :root {
-          --color-brand-primary: ${branding.colors.primary};
-          --color-brand-secondary: ${branding.colors.secondary};
-          --color-brand-bg: ${branding.colors.background};
-          --color-brand-surface: ${branding.colors.surface};
-          --color-brand-light: ${branding.colors.lightText};
-          --color-brand-gray: ${branding.colors.grayText};
-          --color-brand-dark-text: ${branding.colors.darkText};
-          --color-brand-primary-glow: rgba(${primaryRgb}, 0.7);
-          --color-brand-secondary-glow: rgba(${secondaryRgb}, 0.7);
-          --color-brand-secondary-rgb: ${secondaryRgb};
-        }
-      `;
-    }
-}
-
-
 // Context Definition
 interface SiteContentContextType {
   content: SiteContent | null;
@@ -49,13 +14,12 @@ const SiteContentContext = createContext<SiteContentContextType | undefined>(und
 
 // Provider Component
 export const SiteContentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [content, setContent] = useState<SiteContent | null>(() => {
-    applyBrandingStyles(defaultSiteContent); // Apply default styles on initial render
-    return defaultSiteContent;
-  });
+  const [content, setContent] = useState<SiteContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshContent = useCallback(async () => {
+    // No need to set loading true on every refresh, only initial.
+    // This provides a smoother experience in the admin panel.
     try {
       const freshContent = await fetchAndCacheSiteContent();
       setContent(freshContent);
@@ -72,13 +36,18 @@ export const SiteContentProvider: React.FC<{ children: ReactNode }> = ({ childre
     refreshContent().finally(() => setIsLoading(false));
   }, [refreshContent]);
 
-  // Apply branding whenever content changes
-  useEffect(() => {
-    applyBrandingStyles(content);
-  }, [content]);
+  // Provide default content if the real content is null (during initial load).
+  // The `isLoading` flag will ensure the splash screen is shown instead of
+  // the app with default content, but this prevents crashes in components
+  // that might render during the loading phase (like SplashScreen itself).
+  const providerValue = {
+    content: content ?? defaultSiteContent,
+    refreshContent,
+    isLoading,
+  };
 
   return (
-    <SiteContentContext.Provider value={{ content, refreshContent, isLoading }}>
+    <SiteContentContext.Provider value={providerValue}>
       {children}
     </SiteContentContext.Provider>
   );
