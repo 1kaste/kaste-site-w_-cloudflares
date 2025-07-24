@@ -109,9 +109,9 @@ const LoginForm: React.FC = () => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-        const success = await login(password);
-        if (!success) {
-            setError('Incorrect password. Please try again.');
+        const result = await login(password);
+        if (!result.success) {
+            setError(result.message || 'An unknown login error occurred.');
             setPassword('');
         }
         setIsLoading(false);

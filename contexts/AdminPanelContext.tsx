@@ -1,12 +1,18 @@
+
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { API_URL } from '../services/siteContent';
+
+interface LoginResult {
+  success: boolean;
+  message?: string;
+}
 
 interface AdminPanelContextType {
   openPanel: () => void;
   closePanel: () => void;
   isOpen: boolean;
   isAuthenticated: boolean;
-  login: (password: string) => Promise<boolean>;
+  login: (password: string) => Promise<LoginResult>;
   logout: () => void;
 }
 
@@ -31,7 +37,7 @@ export const AdminPanelProvider: React.FC<{ children: ReactNode }> = ({ children
     document.body.style.overflow = 'auto';
   };
 
-  const login = async (password: string): Promise<boolean> => {
+  const login = async (password: string): Promise<LoginResult> => {
     try {
       const response = await fetch(`${API_URL}/api/admin/login`, {
         method: 'POST',
@@ -41,24 +47,21 @@ export const AdminPanelProvider: React.FC<{ children: ReactNode }> = ({ children
         body: JSON.stringify({ password }),
       });
       
-      if (!response.ok && response.status !== 401) {
-        console.error('Login request failed:', response.statusText);
-        return false;
-      }
+      const data = await response.json(); // Always try to parse JSON body
 
-      const data = await response.json();
-      
-      if (data.success) {
+      if (response.ok && data.success) {
         setIsAuthenticated(true);
-        return true;
+        return { success: true };
       } else {
         setIsAuthenticated(false);
-        return false;
+        // Use the message from the API if available, for both 401 and 500 errors
+        return { success: false, message: data.message || 'An unknown error occurred.' };
       }
     } catch (error) {
       console.error('An error occurred during login:', error);
       setIsAuthenticated(false);
-      return false;
+      // This is for network errors etc. where we can't parse JSON
+      return { success: false, message: 'Could not connect to the authentication server.' };
     }
   };
 
