@@ -1,11 +1,13 @@
 
 
+
 import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { useAdminPanel } from '../contexts/AdminPanelContext';
 import { getSiteContent, saveSiteContent, resetSiteContent } from '../services/siteContent';
 import type { SiteContent, Service, Project, SocialLink, CyclingContent, IconSource, FooterContent, HomepageContent, AboutPageContent } from '../types';
 import * as LucideIcons from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
+import { useAppContext } from '../contexts/AppContext';
 
 const { X, Save, RefreshCw, Trash2, Plus, ChevronDown, ChevronUp, Palette, Home, LayoutTemplate, MessageSquare, Info, Phone, Settings, Briefcase, LogIn, LogOut, Wand2, Loader2 } = LucideIcons;
 
@@ -149,6 +151,7 @@ const generateId = () => `id_${Date.now()}_${Math.random().toString(36).substr(2
 
 const AdminPanel: React.FC = () => {
     const { isOpen, closePanel, isAuthenticated, login, logout } = useAdminPanel();
+    const { refreshApp } = useAppContext();
     const [content, setContent] = useState<SiteContent | null>(null);
     const [activeSection, setActiveSection] = useState<AdminSection>('branding');
     const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
@@ -310,18 +313,19 @@ const AdminPanel: React.FC = () => {
             setIsSaving(true);
             try {
                 await saveSiteContent(content);
-                alert('Content saved successfully! The page will now reload to apply changes.');
-                window.location.reload();
+                await refreshApp(); // Re-fetches content and triggers re-render in App.tsx
+                alert('Content saved and is now live!');
             } catch (error) {
                 console.error("Failed to save content:", error);
                 alert('Error: Could not save content. Please check the console and try again.');
+            } finally {
                 setIsSaving(false);
             }
         }
     };
     
     const handleReset = async () => {
-        if (window.confirm('Are you sure you want to reset all content to default? This will immediately publish the default content.')) {
+        if (window.confirm('Are you sure you want to reset all content to default? This will immediately publish the default content and reload the page.')) {
             setIsSaving(true);
             try {
                 await resetSiteContent();

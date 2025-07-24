@@ -1,6 +1,7 @@
 
 
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useCallback } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -21,6 +22,7 @@ import { fetchAndCacheSiteContent, getCachedSiteContent } from './services/siteC
 import SplashScreen from './components/SplashScreen';
 import AnnouncementPopup from './components/AnnouncementPopup';
 import { AnnouncementProvider } from './contexts/AnnouncementContext';
+import { AppContextProvider } from './contexts/AppContext';
 
 const hexToRgb = (hex: string): string => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -60,17 +62,26 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [contentVersion, setContentVersion] = useState(0);
 
+  const refreshApp = useCallback(async () => {
+    try {
+      await fetchAndCacheSiteContent();
+      applyBrandingStyles();
+      setContentVersion(v => v + 1); // Force re-render with fetched content
+    } catch (err) {
+      console.error("Failed to refresh site content:", err);
+    }
+  }, []);
+
   useEffect(() => {
-    // Fetch initial content. Since we removed websockets, this runs once on load.
-    // The Admin Panel will trigger a full page reload on save.
+    // Fetch initial content on first load.
     fetchAndCacheSiteContent().then(() => {
         applyBrandingStyles();
-        setContentVersion(v => v + 1); // Force re-render with fetched content
+        setContentVersion(v => v + 1);
     }).catch(err => {
         console.error("Failed to load initial site content:", err);
         // Use fallback styles if fetch fails
         applyBrandingStyles();
-        setContentVersion(v => v + 1); // Force re-render with fallback content
+        setContentVersion(v => v + 1);
     });
   }, []);
 
@@ -79,37 +90,39 @@ const App: React.FC = () => {
   }
 
   return (
-    <AdminPanelProvider>
-      <ContactModalProvider>
-        <SearchModalProvider>
-          <AnnouncementProvider>
-            <HashRouter>
-              <div id="app-wrapper" className="flex flex-col min-h-screen animate-fade-in bg-brand-bg" key={contentVersion}>
-                <Header />
-                <FloatingIcons />
-                <div id="floating-contact-container" className="hidden lg:block">
-                  <FloatingContact />
+    <AppContextProvider value={{ refreshApp }}>
+      <AdminPanelProvider>
+        <ContactModalProvider>
+          <SearchModalProvider>
+            <AnnouncementProvider>
+              <HashRouter>
+                <div id="app-wrapper" className="flex flex-col min-h-screen animate-fade-in bg-brand-bg" key={contentVersion}>
+                  <Header />
+                  <FloatingIcons />
+                  <div id="floating-contact-container" className="hidden lg:block">
+                    <FloatingContact />
+                  </div>
+                  <main id="main-content-container" className="flex-grow relative">
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/about" element={<AboutPage />} />
+                      <Route path="/services" element={<ServicesPage />} />
+                      <Route path="/service/:id" element={<ServiceDetail />} />
+                      <Route path="/contact" element={<ContactPage />} />
+                    </Routes>
+                  </main>
+                  <Footer />
                 </div>
-                <main id="main-content-container" className="flex-grow relative">
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/services" element={<ServicesPage />} />
-                    <Route path="/service/:id" element={<ServiceDetail />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                  </Routes>
-                </main>
-                <Footer />
-              </div>
-              <ContactModal />
-              <SearchModal />
-              <AdminPanel />
-              <AnnouncementPopup />
-            </HashRouter>
-          </AnnouncementProvider>
-        </SearchModalProvider>
-      </ContactModalProvider>
-    </AdminPanelProvider>
+                <ContactModal />
+                <SearchModal />
+                <AdminPanel />
+                <AnnouncementPopup />
+              </HashRouter>
+            </AnnouncementProvider>
+          </SearchModalProvider>
+        </ContactModalProvider>
+      </AdminPanelProvider>
+    </AppContextProvider>
   );
 };
 
