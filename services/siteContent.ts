@@ -1,11 +1,26 @@
+
 import { SiteContent, Service, Project } from '../types';
 
 /**
- * The API URL for the serverless backend.
- * In a Cloudflare Pages setup, functions in the /functions directory are available
- * at relative paths on the same domain, so we use '/'.
+ * Determines the API URL based on the execution environment.
+ * This supports local development against a Cloudflare Worker and production deployment.
+ *
+ * @returns {string} The appropriate API URL base path.
  */
-export const API_URL = '/';
+const getApiUrl = (): string => {
+    const hostname = window.location.hostname;
+
+    // For local development, point to the default Wrangler dev server port.
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:8787';
+    }
+
+    // For deployed environments on Cloudflare Pages, use a relative path.
+    // Requests to `/api/*` will be automatically routed to the Functions worker.
+    return '';
+};
+
+export const API_URL = getApiUrl();
 
 // In-memory cache for the site content
 let siteContentCache: SiteContent | null = null;
@@ -84,7 +99,7 @@ const defaultServices: Service[] = [
 ];
 const defaultProjects: Project[] = [];
 
-const defaultSiteContent: SiteContent = {
+export const defaultSiteContent: SiteContent = {
   branding: {
     logoUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1751848854/Brands_Designs_1_yismag.svg",
     splashScreen: {
@@ -235,10 +250,10 @@ const defaultSiteContent: SiteContent = {
   projects: defaultProjects,
 };
 
-// This function is called on app start.
+// This function is called on app start and on websocket update
 export const fetchAndCacheSiteContent = async (): Promise<SiteContent> => {
   try {
-    const response = await fetch(`${API_URL}api/content`);
+    const response = await fetch(`${API_URL}/api/content`, { cache: 'no-store' });
     if (!response.ok) {
         throw new Error(`Failed to fetch content: ${response.statusText}`);
     }
@@ -257,12 +272,13 @@ export const fetchAndCacheSiteContent = async (): Promise<SiteContent> => {
 
 export const saveSiteContent = async (content: SiteContent): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}api/content`, {
+    const response = await fetch(`${API_URL}/api/content`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(content),
+        cache: 'no-store',
     });
     if (!response.ok) {
         throw new Error(`Failed to save content: ${response.statusText}`);
@@ -277,8 +293,9 @@ export const saveSiteContent = async (content: SiteContent): Promise<void> => {
 
 export const resetSiteContent = async (): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}api/content/reset`, {
+    const response = await fetch(`${API_URL}/api/content/reset`, {
         method: 'POST',
+        cache: 'no-store',
     });
     if (!response.ok) {
         throw new Error(`Failed to reset content: ${response.statusText}`);
@@ -315,7 +332,8 @@ export const getServices = (): Service[] => {
 };
 
 export const getServiceById = (id: string): Service | undefined => {
-  return getServices().find(service => service.id === id);
+  const content = getSiteContent();
+  return content.services.find(service => service.id === id);
 };
 
 export const getProjects = (): Project[] => {
@@ -323,5 +341,6 @@ export const getProjects = (): Project[] => {
 };
 
 export const getProjectsByServiceId = (serviceId: string): Project[] => {
-    return getProjects().filter(p => p.serviceId === serviceId);
+    const content = getSiteContent();
+    return content.projects.filter(p => p.serviceId === serviceId);
 }

@@ -1,122 +1,362 @@
 
-require('dotenv').config();
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const cors = require('cors');
-const connectDB = require('./db');
-const SiteContent = require('./models/SiteContent');
-
-const app = express();
-const server = http.createServer(app);
-
-// Connect to MongoDB
-connectDB();
-
-// --- CORS Configuration ---
-// Define allowed origins. For maximum flexibility with Netlify previews,
-// we'll allow any origin. In a higher-security production environment,
-// this might be locked down to specific domains.
-const corsOptions = {
-  origin: '*', // Allow all origins
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow common methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allow common headers
+// This default structure is used by the worker if no data is provided on creation.
+const defaultSiteContent = {
+  branding: {
+    logoUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1751848854/Brands_Designs_1_yismag.svg",
+    splashScreen: {
+      brandName: "Kaste Brands & Designs",
+      description: "Building Bold Brands & Smart Solutions",
+    },
+    colors: {
+      primary: '#0A777B',
+      secondary: '#F5B841',
+      background: '#1A1A1A',
+      surface: '#2A2A2A',
+      lightText: '#F9F9F9',
+      grayText: '#EDEDED',
+      darkText: '#1A1A1A',
+    }
+  },
+  header: {
+    cyclingContent: [
+      { id: 'cc_1', icon: 'Sparkles', text: "Creative Solutions" },
+      { id: 'cc_2', icon: 'TrendingUp', text: "Digital Growth" },
+      { id: 'cc_3', icon: 'BrainCircuit', text: "AI-Powered Innovation" },
+      { id: 'cc_4', icon: 'Brush', text: "Strategic Branding" },
+    ],
+    contact: {
+      phone: '+254795071901',
+      whatsapp: '254795071901',
+    }
+  },
+  footer: {
+    tagline: 'Building bold brands and smart solutions for the digital age.',
+    contact: {
+      email: 'info@kastebrands.co.ke',
+      location: 'Nairobi, Kenya',
+    },
+    navLinks: [
+        { id: 'footer_nav_home', label: 'Home', url: '/' },
+        { id: 'footer_nav_about', label: 'About', url: '/about' },
+        { id: 'footer_nav_services', label: 'Services', url: '/services' },
+        { id: 'footer_nav_contact', label: 'Contact', url: '/contact' },
+    ],
+    socialLinks: [
+      { id: 'sl_linkedin', url: "https://linkedin.com/company/kaste-brands", label: "LinkedIn", iconUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1753228294/linkedin_ltqxuy.svg" },
+      { id: 'sl_twitter', url: "https://twitter.com/kastebrands", label: "X (Twitter)", iconUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1753228294/twitter_itf6wp.svg" },
+      { id: 'sl_instagram', url: "https://instagram.com/kastebrands", label: "Instagram", iconUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1753228456/instagram_wd9tua.svg" },
+      { id: 'sl_tiktok', url: "https://www.tiktok.com/@kastebrands", label: "TikTok", iconUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1753228295/tiktok_avr92v.svg" },
+      { id: 'sl_behance', url: "https://www.behance.net/kastebrands", label: "Behance", iconUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1753228293/behance_jcdldl.svg" },
+      { id: 'sl_github', url: "https://github.com/kastebrands", label: "GitHub", iconUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1753228293/github_agymjn.svg" },
+      { id: 'sl_facebook', url: "https://facebook.com/KasteBrands", label: "Facebook", iconUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1753228337/facebook-color_xx6keh.svg" },
+      { id: 'sl_whatsapp', url: "https://wa.me/254795071901", label: "WhatsApp", iconUrl: "https://res.cloudinary.com/dwwvh34yi/image/upload/v1753226530/whatsapp-svgrepo-com_tdqmtd.svg" },
+    ]
+  },
+  homepage: {
+    hero: {
+      title: 'Build Bold.<br />Operate Smart.<br />Scale Fast.',
+      subtitle: 'Fueling brands with bold digital energy. We help businesses thrive in the digital era through intelligent tech solutions and creative branding that drives growth.',
+      backgroundImageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753291053/hero_section_1_rnglfv.png',
+    },
+    featuredServices: {
+      title: 'Featured Services',
+      subtitle: 'Expertise to elevate every facet of your brand.',
+      serviceIds: ['web-designs', 'ai-systems', 'brand-identity'],
+    },
+    clientMarquee: {
+      title: 'Trusted by Industry Innovators',
+      clients: [
+        [
+          { id: 'client_nexus', name: 'NEXUS', logoUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753313001/client-logos/nexus_white.svg' },
+          { id: 'client_quantum', name: 'Quantum', logoUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753313002/client-logos/quantum_white.svg' },
+        ],
+        [
+          { id: 'client_helios', name: 'Helios', logoUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753313011/client-logos/helios_white.svg' },
+          { id: 'client_odyssey', name: 'Odyssey', logoUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753313012/client-logos/odyssey_white.svg' },
+        ]
+      ],
+    },
+    tabsSection: {
+      title: 'Our Innovation Hub',
+      subtitle: "A glimpse into the technologies we master and the projects we're building.",
+      tabs: [
+        { id: 'ai', label: 'AI Tools', icon: 'BrainCircuit', items: [
+            { id: 'tab_ai_gemini', icon: { type: 'custom', value: 'GeminiIcon'}, title: 'Gemini & GPT Models', description: 'For advanced text generation, summarization, and analysis.' },
+        ]},
+        { id: 'stack', label: 'Our Stack', icon: 'Code', items: [
+            { id: 'tab_stack_react', icon: { type: 'custom', value: 'ReactIcon'}, title: 'React & Next.js', description: 'For building scalable and performant web applications.' },
+        ]},
+        { id: 'projects', label: 'In The Works', icon: 'Loader', items: [
+            { id: 'tab_proj_content', icon: { type: 'lucide', value: 'Lightbulb' }, title: 'AI-Powered Content Platform', description: 'Developing a SaaS for automated content creation and optimization.', iconClassName: "text-yellow-400"},
+        ]},
+      ],
+    },
+    stats: {
+        title: 'Data-Driven Success',
+        subtitle: 'Our track record, by the numbers.',
+        items: [
+            { id: 'stat_projects', icon: 'Briefcase', value: '75+', label: 'Projects Delivered' },
+        ]
+    }
+  },
+  about: {
+      hero: {
+          title: "We're Not Just an Agency.",
+          highlightedText: "We're Your Growth Partner.",
+          subtitle: "Kaste Brands & Designs was born from a simple belief: audacious ideas deserve brilliant execution."
+      },
+      mission: {
+          title: "Where Vision Meets Velocity",
+          body: "We're not just service providers; we are your strategic partners in digital evolution.",
+          imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop",
+          points: [
+              { id: 'mission_point_strat', icon: 'Target', title: 'Strategic Precision', text: 'Every design, every line of code, is crafted with purpose to achieve your business objectives.'},
+          ]
+      },
+      principles: {
+          title: "Our Guiding Principles",
+          subtitle: "This is the ethos that drives our work and our relationships.",
+          items: [
+              { id: 'principle_partner', icon: 'HeartHandshake', title: 'Radical Partnership', text: 'No black boxes. No jargon. We operate as a true extension of your team.'},
+          ]
+      },
+      cta: {
+          title: "Ready to build something extraordinary?",
+          subtitle: "Let's challenge the status quo together. Tell us about your vision.",
+          buttonText: "Start the Conversation"
+      }
+  },
+  contact: {
+      hero: {
+          title: "Get In Touch",
+          subtitle: "Have a project in mind or just want to say hello? We'd love to hear from you."
+      },
+      details: {
+          email: 'info@kastebrands.co.ke',
+          phone: '+254 795 071 901',
+          location: 'Nairobi, Kenya (Remote First)'
+      }
+  },
+  popup: {
+    enabled: false,
+    type: 'announcement',
+    icon: 'Megaphone',
+    title: 'New Announcement!',
+    message: 'Check out our latest news or special offers. You can customize this message in the admin panel.',
+    ctaText: 'Learn More',
+    ctaLink: '/about',
+    imageUrl: '',
+  },
+  services: [
+    {
+      id: 'web-designs',
+      title: 'Web Designs',
+      description: 'We build bold, responsive websites that captivate users and drive business growth with style.',
+      longDescription: "Your website is your digital storefront. We don't just build pages; we architect experiences. Our team combines bold, modern aesthetics with clean, intuitive UX to create websites that are not only visually stunning but also fast, responsive, and conversion-optimized. From corporate hubs to intricate e-commerce platforms, we deliver digital excellence that makes a statement.",
+      imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753214408/website_peview_yamyba.png',
+    },
+    {
+      id: 'brand-identity',
+      title: 'Brand Identity',
+      description: 'Forge a memorable brand identity that tells your story and connects with your audience.',
+      longDescription: "A powerful brand is more than a logo—it's a feeling. We dive deep to define your brand's core essence, then build a complete visual identity system: logo, color palette, typography, and voice. Our goal is to craft a cohesive, compelling narrative that ensures you stand out and resonate deeply with your target market.",
+      imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753214408/brand_identity_preview_image_bbjy8c.png',
+    },
+    {
+      id: 'ai-systems',
+      title: 'AI Systems',
+      description: 'Develop intelligent AI systems to automate workflows, uncover insights, and innovate faster.',
+      longDescription: "Unlock the future with Artificial Intelligence. We specialize in custom AI systems, from machine learning models to NLP and computer vision. Our solutions are engineered to boost efficiency, deliver predictive insights, and create new, game-changing opportunities for your business. It's not just automation; it's intelligent evolution.",
+      imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753214409/Ai_systems_preview_vuryne.png',
+    },
+    {
+      id: 'ai-solutions',
+      title: 'AI Solutions',
+      description: 'Integrate bespoke AI solutions to conquer complex challenges and future-proof your operations.',
+      longDescription: "We deliver tailored AI solutions that solve real-world business problems. From AI-powered chatbots that elevate customer service to sophisticated recommendation engines that drive sales, we provide end-to-end implementation. We turn complex data into a competitive advantage, delivering measurable value and a clear path forward.",
+      imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224233/ai_solutions_xp0bsr.png',
+    },
+    {
+      id: 'graphics',
+      title: 'Graphics',
+      description: 'Create stunning, high-impact graphics that stop the scroll and demand attention.',
+      longDescription: "In a visual world, great design is non-negotiable. Our graphics team produces compelling visuals for every platform—from scroll-stopping social media assets and ad creatives to sharp infographics and polished presentation decks. We make sure your message is not just seen, but felt.",
+      imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224232/graphics_gpylst.png',
+    },
+    {
+      id: 'branding',
+      title: 'Branding',
+      description: 'Deploy full-funnel branding strategies that define your position and build a loyal following.',
+      longDescription: "We build brands with intention. Our strategic process involves deep market research, competitive analysis, and crafting a unique brand voice and messaging framework. We ensure every customer touchpoint is a consistent, powerful, and memorable experience that builds not just awareness, but loyalty.",
+      imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224232/branding_section_zzir42.png',
+    },
+    {
+      id: 'digital-marketing',
+      title: 'Digital Marketing',
+      description: 'Execute data-driven marketing campaigns that scale your reach and maximize conversions.',
+      longDescription: "We connect you with your audience through smart, data-first digital marketing. Our holistic strategies cover SEO, SEM, content marketing, and social media management, all relentlessly optimized for performance. We turn clicks into customers and data into dominance, ensuring sustainable growth and maximum ROI.",
+      imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224231/Digital_Marketing_oqamvh.png',
+    },
+    {
+      id: 'software-development',
+      title: 'Software Development',
+      description: 'Engineer scalable, high-performance custom software solutions that power your business forward.',
+      longDescription: "We are architects of digital innovation. Using agile methodologies, our team develops secure, scalable, and robust custom software. Whether you need an enterprise-grade application, a powerful CRM, or a groundbreaking SaaS product, we deliver solutions that streamline operations and create a definitive competitive edge.",
+      imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224232/software_dev_dnerje.png',
+    },
+    {
+      id: 'mobile-apps',
+      title: 'Mobile Apps',
+      description: 'Build elegant, high-performance native and cross-platform mobile apps for iOS & Android.',
+      longDescription: "Put your brand in your customers' hands. We manage the entire mobile app lifecycle—from strategy and UI/UX design to native/cross-platform development, testing, and App Store deployment. We create seamless, powerful, and intuitive mobile experiences that drive engagement and loyalty.",
+      imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224231/mobile_apps_l6ovlk.png',
+    },
+    {
+      id: 'all-digital-solutions',
+      title: 'All Digital Solutions',
+      description: 'Your strategic partner for integrated digital services, designed to build, elevate, and scale your brand.',
+      longDescription: "Kaste Brands & Designs is your one-stop partner for total digital transformation. We offer an integrated suite of services, combining bold creative, cutting-edge technology, and strategic marketing. From forging your brand identity to launching complex software and dominating your market, we have the vision and expertise to accelerate your success.",
+      imageUrl: 'https://res.cloudinary.com/dwwvh34yi/image/upload/v1753224231/all_digital_solutions_vccfeg.png',
+    }
+  ],
+  projects: [],
 };
 
-// --- Middleware ---
-// Apply CORS middleware to all routes
-app.use(cors(corsOptions));
-// Handle preflight requests across all routes
-app.options('*', cors(corsOptions));
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+};
 
-app.use(express.json({ limit: '50mb' })); // Increase limit for potential base64 images
+const responseHeaders = {
+    ...corsHeaders,
+    'Content-Type': 'application/json',
+    // Instruct browsers and intermediate caches (like Cloudflare) not to cache the API response.
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'Surrogate-Control': 'no-store',
+};
 
-// --- Socket.IO Setup ---
-// Use the same CORS options for Socket.IO
-const io = new Server(server, {
-    cors: corsOptions
-});
 
-io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
-    socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
-    });
-});
+// --- Cloudflare KV Handlers ---
+// These functions interact with a Cloudflare KV namespace.
+// Make sure you have a KV namespace created in your Cloudflare account and
+// bind it to this worker script with the name `SITE_CONTENT_KV`.
 
-// Health check route for Render
-app.get('/', (req, res) => {
-    res.status(200).send('Kaste Brands & Designs API is running.');
-});
+async function handleGetContent(env) {
+    const kv = env.SITE_CONTENT_KV;
+    if (!kv) {
+        throw new Error('KV Namespace (SITE_CONTENT_KV) is not bound. Please check your wrangler.toml or Cloudflare dashboard.');
+    }
+    const contentKey = 'site_content';
 
-// API Routes
-app.get('/api/content', async (req, res) => {
     try {
-        let content = await SiteContent.findOne();
-        if (!content) {
-            // If no content exists, create it from the default structure
-            console.log('No content found in DB, creating from default.');
-            content = new SiteContent({}); // Mongoose will use schema defaults
-            await content.save();
+        let contentJson = await kv.get(contentKey);
+        if (!contentJson) {
+            console.log('No content found in KV, creating default document.');
+            await kv.put(contentKey, JSON.stringify(defaultSiteContent));
+            return defaultSiteContent;
         }
-        res.json(content.content);
-    } catch (error) {
-        console.error('Error fetching content:', error);
-        res.status(500).json({ message: 'Server error while fetching content' });
+        return JSON.parse(contentJson);
+    } catch (e) {
+        console.error("Failed to get content from KV, returning default content.", e);
+        return defaultSiteContent;
     }
-});
+}
 
-app.post('/api/content', async (req, res) => {
-    try {
-        const newContent = req.body;
-        // Use findOneAndUpdate with upsert:true to create the document if it doesn't exist
-        const updatedContent = await SiteContent.findOneAndUpdate({}, { content: newContent }, { new: true, upsert: true });
-        
-        // Notify all connected clients that the content has been updated
-        io.emit('contentUpdated');
-        console.log('Content updated and notification sent.');
-        
-        res.json(updatedContent.content);
-    } catch (error) {
-        console.error('Error saving content:', error);
-        res.status(500).json({ message: 'Server error while saving content' });
+async function handleUpdateContent(request, env) {
+    const kv = env.SITE_CONTENT_KV;
+    if (!kv) {
+        throw new Error('KV Namespace (SITE_CONTENT_KV) is not bound.');
     }
-});
+    const contentKey = 'site_content';
+    const newContent = await request.json();
 
-app.post('/api/content/reset', async (req, res) => {
-    try {
-        // Find and delete the existing document
-        await SiteContent.deleteOne({});
-        // Create a new one with default values from the schema
-        const defaultContent = new SiteContent({});
-        await defaultContent.save();
+    await kv.put(contentKey, JSON.stringify(newContent));
+    return { success: true };
+}
 
-        // Notify all connected clients
-        io.emit('contentUpdated');
-        console.log('Content reset to default and notification sent.');
-        
-        res.json(defaultContent.content);
-    } catch (error) {
-        console.error('Error resetting content:', error);
-        res.status(500).json({ message: 'Server error while resetting content' });
+async function handleResetContent(env) {
+    const kv = env.SITE_CONTENT_KV;
+    if (!kv) {
+        throw new Error('KV Namespace (SITE_CONTENT_KV) is not bound.');
     }
-});
+    const contentKey = 'site_content';
 
-app.post('/api/admin/login', (req, res) => {
-    const { password } = req.body;
-    
-    // Use the environment variable, with the old hardcoded password as a fallback.
-    const masterPassword = process.env.MASTER_PASSWORD || '39344323';
+    await kv.put(contentKey, JSON.stringify(defaultSiteContent));
+    return { success: true };
+}
+
+async function handleLogin(request, env) {
+    const { password } = await request.json();
+    const masterPassword = env.MASTER_PASSWORD;
+
+    if (!masterPassword) {
+        console.error("MASTER_PASSWORD secret is not set in the worker environment.");
+        return { success: false, message: 'Server configuration error.' };
+    }
 
     if (password === masterPassword) {
-        // Note: For higher security, this endpoint should return a session token (JWT)
-        // to be used for authenticating subsequent admin actions.
-        res.json({ success: true });
+        return { success: true };
     } else {
-        res.status(401).json({ success: false, message: 'Invalid credentials' });
+        return { success: false, message: 'Invalid credentials' };
     }
-});
+}
 
+// Main worker entry point
+export default {
+    async fetch(request, env, ctx) {
+        // Handle CORS preflight requests
+        if (request.method === 'OPTIONS') {
+            return new Response(null, { headers: corsHeaders });
+        }
 
-const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+        const url = new URL(request.url);
+        let responseData;
+        let status = 200;
+
+        try {
+            switch (url.pathname) {
+                case '/api/content':
+                    if (request.method === 'GET') {
+                        responseData = await handleGetContent(env);
+                    } else if (request.method === 'POST') {
+                        responseData = await handleUpdateContent(request, env);
+                    }
+                    break;
+                case '/api/content/reset':
+                    if (request.method === 'POST') {
+                        responseData = await handleResetContent(env);
+                    }
+                    break;
+                case '/api/admin/login':
+                    if (request.method === 'POST') {
+                        const loginResult = await handleLogin(request, env);
+                        responseData = loginResult;
+                        if (!loginResult.success) {
+                             status = loginResult.message === 'Server configuration error.' ? 500 : 401;
+                        }
+                    }
+                    break;
+                default:
+                    responseData = { error: 'Not Found' };
+                    status = 404;
+            }
+        } catch (error) {
+            console.error('Worker error:', error);
+            responseData = { error: 'Internal Server Error', details: error.message };
+            status = 500;
+        }
+
+        if (!responseData) {
+            responseData = { error: 'Method Not Allowed' };
+            status = 405;
+        }
+
+        return new Response(JSON.stringify(responseData), {
+            status: status,
+            headers: responseHeaders,
+        });
+    },
+};

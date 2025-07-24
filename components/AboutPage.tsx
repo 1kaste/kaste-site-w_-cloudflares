@@ -3,11 +3,14 @@ import React from 'react';
 import { icons, HelpCircle } from 'lucide-react';
 import AnimateOnScroll from './AnimateOnScroll';
 import { useContactModal } from '../contexts/ContactModalContext';
-import { getSiteContent } from '../services/siteContent';
+import { useSiteContent } from '../contexts/SiteContentContext';
 
 const AboutPage: React.FC = () => {
   const { openModal } = useContactModal();
-  const { about } = getSiteContent();
+  const { content } = useSiteContent();
+  
+  if (!content) return null;
+  const { about } = content;
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-8 sm:pb-12">

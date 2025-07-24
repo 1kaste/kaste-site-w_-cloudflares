@@ -1,11 +1,12 @@
 
-
 import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { useAdminPanel } from '../contexts/AdminPanelContext';
-import { getSiteContent, saveSiteContent, resetSiteContent } from '../services/siteContent';
+import { saveSiteContent, resetSiteContent } from '../services/siteContent';
 import type { SiteContent, Service, Project, SocialLink, CyclingContent, IconSource, FooterContent, HomepageContent, AboutPageContent } from '../types';
 import * as LucideIcons from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
+import { useNotification } from '../contexts/NotificationContext';
+import { useSiteContent } from '../contexts/SiteContentContext';
 
 const { X, Save, RefreshCw, Trash2, Plus, ChevronDown, ChevronUp, Palette, Home, LayoutTemplate, MessageSquare, Info, Phone, Settings, Briefcase, LogIn, LogOut, Wand2, Loader2 } = LucideIcons;
 
@@ -149,6 +150,8 @@ const generateId = () => `id_${Date.now()}_${Math.random().toString(36).substr(2
 
 const AdminPanel: React.FC = () => {
     const { isOpen, closePanel, isAuthenticated, login, logout } = useAdminPanel();
+    const { content: globalContent, refreshContent } = useSiteContent();
+    const { addNotification } = useNotification();
     const [content, setContent] = useState<SiteContent | null>(null);
     const [activeSection, setActiveSection] = useState<AdminSection>('branding');
     const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
@@ -191,38 +194,12 @@ const AdminPanel: React.FC = () => {
     }, [content?.projects]);
     
     useEffect(() => {
-        if (isOpen && isAuthenticated) {
-            const loadedContent = getSiteContent();
-            // Ensure splashScreen data exists for backward compatibility with old localStorage data
-            if (!loadedContent.branding.splashScreen) {
-                loadedContent.branding.splashScreen = {
-                    brandName: "Kaste Brands & Designs",
-                    description: "Building Bold Brands & Smart Solutions",
-                };
-            }
-            if (!loadedContent.popup) { // Ensure popup data exists
-                loadedContent.popup = {
-                    enabled: false,
-                    type: 'announcement',
-                    icon: 'Megaphone',
-                    title: 'New Announcement!',
-                    message: 'Check out our latest news or special offers.',
-                    ctaText: 'Learn More',
-                    ctaLink: '/about',
-                    imageUrl: ''
-                };
-            }
-             if (!('type' in loadedContent.popup)) {
-                (loadedContent.popup as any).type = 'announcement';
-            }
-            if (!('imageUrl' in loadedContent.popup)) {
-              loadedContent.popup.imageUrl = '';
-            }
-            setContent(loadedContent);
+        if (isOpen && isAuthenticated && globalContent) {
+            setContent(JSON.parse(JSON.stringify(globalContent)));
         } else {
             setContent(null);
         }
-    }, [isOpen, isAuthenticated]);
+    }, [isOpen, isAuthenticated, globalContent]);
 
     const updateProjectUiState = (projectId, updates) => {
         setProjectUiState(prev => ({
@@ -310,11 +287,11 @@ const AdminPanel: React.FC = () => {
             setIsSaving(true);
             try {
                 await saveSiteContent(content);
-                alert('Content saved successfully! The changes are now live.');
-                closePanel();
+                await refreshContent();
+                addNotification('Content saved and is now live!', 'success');
             } catch (error) {
                 console.error("Failed to save content:", error);
-                alert('Error: Could not save content. Please check the console and try again.');
+                addNotification('Error: Could not save content. Check console.', 'error');
             } finally {
                 setIsSaving(false);
             }
@@ -322,16 +299,17 @@ const AdminPanel: React.FC = () => {
     };
     
     const handleReset = async () => {
-        if (window.confirm('Are you sure you want to reset all content to default? This will immediately publish the default content.')) {
+        if (window.confirm('Are you sure you want to reset all content to default? This will immediately publish the default content and reload the page.')) {
             setIsSaving(true);
             try {
                 await resetSiteContent();
-                alert('Content has been reset to default and is now live.');
-                closePanel();
+                addNotification('Content has been reset. The page will now reload.', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
             } catch (error) {
                 console.error("Failed to reset content:", error);
-                alert('Error: Could not reset content. Please check the console and try again.');
-            } finally {
+                addNotification('Error: Could not reset content. Check console.', 'error');
                 setIsSaving(false);
             }
         }
@@ -444,7 +422,7 @@ const AdminPanel: React.FC = () => {
         );
     }
 
-    if (!content) return <div id="admin-panel-loading" className="fixed inset-0 z-[100] flex items-center justify-center bg-brand-bg/90 backdrop-blur-sm">Loading...</div>;
+    if (!content) return <div id="admin-panel-loading" className="fixed inset-0 z-[100] flex items-center justify-center bg-brand-bg/90 backdrop-blur-sm">Loading Content Editor...</div>;
 
     const renderSection = () => {
         switch(activeSection) {

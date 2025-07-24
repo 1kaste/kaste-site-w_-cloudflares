@@ -1,10 +1,15 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getSiteContent } from '../services/siteContent';
+import { useSiteContent } from '../contexts/SiteContentContext';
 
 const Footer: React.FC = () => {
   const year = new Date().getFullYear();
-  const { branding, footer } = getSiteContent();
+  const { content } = useSiteContent();
+
+  if (!content) return null;
+
+  const { branding, footer } = content;
 
   return (
     <footer id="contact" className="bg-brand-surface/50 border-t border-brand-primary/20 mt-20">

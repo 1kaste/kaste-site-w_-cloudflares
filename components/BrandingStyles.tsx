@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useSiteContent } from './contexts/SiteContentContext';
+import { useSiteContent } from '../contexts/SiteContentContext';
 import type { SiteContent } from '../types';
 
 const hexToRgb = (hex: string): string => {

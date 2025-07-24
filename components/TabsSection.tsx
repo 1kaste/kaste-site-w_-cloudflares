@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { icons, HelpCircle } from 'lucide-react';
 import AnimateOnScroll from './AnimateOnScroll';
-import { getSiteContent } from '../services/siteContent';
 import type { IconSource } from '../types';
+import { useSiteContent } from '../contexts/SiteContentContext';
 
 // --- Custom SVG Icon Components with Brand Colors ---
 
@@ -116,7 +117,11 @@ const TabIcon: React.FC<{ icon: IconSource; className?: string; alt: string }> =
 type TabId = 'ai' | 'stack' | 'projects';
 
 const TabsSection: React.FC = () => {
-  const { homepage } = getSiteContent();
+  const { content } = useSiteContent();
+
+  if (!content) return null;
+
+  const { homepage } = content;
   const { tabsSection } = homepage;
   const [activeTab, setActiveTab] = useState<TabId>(tabsSection.tabs[0]?.id || 'ai');
   
