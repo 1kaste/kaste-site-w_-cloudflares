@@ -317,13 +317,13 @@ async function handleLogin(request, env) {
 }
 
 // --- Router Setup ---
-const router = Router({ base: '/api' });
+const router = Router();
 
 // --- API Routes ---
-router.get('/content', async (req, env) => json(await handleGetContent(env)));
-router.post('/content', async (req, env) => json(await handleUpdateContent(req, env)));
-router.post('/content/reset', async (req, env) => json(await handleResetContent(env)));
-router.post('/admin/login', async (req, env) => {
+router.get('/api/content', async (req, env) => json(await handleGetContent(env)));
+router.post('/api/content', async (req, env) => json(await handleUpdateContent(req, env)));
+router.post('/api/content/reset', async (req, env) => json(await handleResetContent(env)));
+router.post('/api/admin/login', async (req, env) => {
     const loginResult = await handleLogin(req, env);
     if (!loginResult.success) {
         const status = loginResult.message === 'Server configuration error.' ? 500 : 401;
